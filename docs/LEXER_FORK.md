@@ -113,10 +113,10 @@ separate build, storage, rendered-UI and real-game evidence before completion.
 ### Shared components and delivery
 
 The shared onboarding source is checkpointed in Lexer-Lux/verdite-core on
-`codex/kf3-binding-setup` (`15785d3`). The generic map-half glow, physical HUD,
+`codex/kf3-binding-setup` (`cf77dff`). The generic map-half glow, physical HUD,
 headless diagnostics, dependency-aware source-mod priority and compiler metadata
-are checkpointed in Lexer-Lux/verdite-recompone on `codex/kf3-mod-compiler`
-(`b52b67c`). Neither change
+and retained fog-depth scaling are checkpointed in Lexer-Lux/verdite-recompone on
+`codex/kf3-fog-range` (`f53d359`). Neither change
 was submitted upstream or pushed to a default branch.
 
 The normal Windows fork is installed at `D:/Programs/Verdite3`. The original
@@ -125,8 +125,10 @@ left unchanged. The latest candidate's414 installed files were hash-verified.
 Its normal installed launcher privately compiled the shipped sources from the
 disc and loaded a real source mod before reaching the game overlay, using
 isolated data. The windowless launcher bypasses invisible setup/popups and reports
-build failures through its log. GPU scene appearance and physical-pad
-feel are still unverified. The distribution contains the launcher/runtime and
+build failures through its log. Extended distance and independent fade were
+subsequently verified on the installed build's actual GPU output as described
+below; physical-pad feel and the mods' appearance remain separate checks.
+The distribution contains the launcher/runtime and
 source build inputs, without disc data, card files or the generated game assembly.
 
 The requested Forget Me Not source mod is in the user's library, disabled. It is
@@ -140,3 +142,34 @@ Better Sprint, Better Poison and XP Bar are also disabled source-only library
 mods. Their focused checks and successful native-loader attachment remain
 separate from visual acceptance. No mod's gameplay behavior is bundled into the
 fork. No user game was stopped or restarted during installation or diagnostics.
+
+### Installed regression checks, 2026-11-03
+
+The normal installed launcher built the shipped `04b43f8` source into a private
+data/cache folder and rendered through NVIDIA OpenGL 4.5. At a fixed camera,
+distance 15/fade 0 had no lit geometry beyond 15 tiles; distance 30/fade 0 had
+4,367 lit far pixels, and distance 30/fade 8 had 4,204. Main and presented depth
+captures matched the same retained serial, with no far geometry erased at
+presentation. The final framebuffer images were inspected: farther walls and
+trees appeared, and toggling fade changed the edge while distance stayed 30.
+No diagnostic fog bypass was active. After a process restart, saved distance 24
+and fade 2.5 loaded unchanged, with `rdFogScale=24/13`; 2,735 lit pixels remained
+beyond 15 tiles in both matched main/present captures.
+
+Actual installed launcher first-run and compiled-game rerun widgets both show
+Controls at step 2 of six. The rerun retains a custom binding as Keep as is.
+Actual compiled-game settings render 30.0 with fade off and with band 8.00; the
+native menu formats the maximum step as 30. Lexeditor's real number input has
+min 0/max 30/step 0.1, and a private UI edit/save/reload retained 30 through
+independent fade off/on changes. Large and small rendered screens were viewed.
+
+The installed game's actual binding/SDK path, supplied private synthetic raw
+input, opened Earth Herb's native Guide with Modern Triangle and keyboard Q.
+Holding/repressing Triangle did not dismiss it; Circle returned to the item list
+and then gameplay. Classic Triangle also opened Guide and Circle returned to
+the list. These are isolated input-path checks, not a physical controller test.
+
+The initial hidden GPU test mistakenly opened audio and was stopped. Later
+tests intercept Audio.Initialize before startup and assert no audio context or
+mixer thread, in addition to zero private volume and disabled rumble. Owned test
+processes exited and player cards/settings hashes remained unchanged.

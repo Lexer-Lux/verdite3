@@ -150,8 +150,12 @@ The fork is installed at `D:/Programs/Verdite3`, with the original retained at
 `D:/Programs/Verdite3.original` and player files unchanged. The latest normal
 installed launcher compiled the shipped source from the disc and loaded a source
 mod in isolated headless data, reaching the game overlay. The complete installed
-Settings window and physical-pad
-feel remain separate acceptance checks.
+Settings distance widgets were subsequently rendered from that installed
+compiled game at 30.0 with fade off and on. Its actual binding/SDK path opened
+Earth Herb Guide under Modern Triangle, keyboard Q, and Classic Triangle;
+Circle returned to the list. Holding or repressing Modern Triangle did not close
+the viewer. Private synthetic raw input was used, not physical pad presses.
+Physical-pad feel remains a separate acceptance check.
 
 Forget Me Not is a separate disabled user-library source mod. Better Sprint,
 Better Poison and XP Bar are additional disabled source-only library mods. All
