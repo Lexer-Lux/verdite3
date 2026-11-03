@@ -766,9 +766,10 @@ internal sealed class OnboardingPopup : Popup
             var page = _spec.Pages[p];
             var choice = _pages[p];
             ImGui.SeparatorText(Localization.T(page.Title));
-            Line(page.Label, choice.Option >= 0 && choice.Option < page.Options.Count
-                ? OptionLabel(page.Options[choice.Option])
-                : Localization.T("verdite.setup.keep"));
+            if (page.Options.Count > 0)
+                Line(page.Label, choice.Option >= 0 && choice.Option < page.Options.Count
+                    ? OptionLabel(page.Options[choice.Option])
+                    : Localization.T("verdite.setup.keep"));
             if (page.Slider is { } s) Line(s.Label, SliderText(s, ValueOf(s, choice)));
         }
     }
