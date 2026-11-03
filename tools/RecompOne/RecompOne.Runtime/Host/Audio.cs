@@ -34,6 +34,12 @@ internal static unsafe class Audio
 
     public static void Initialize()
     {
+        if (Runtime.Headless)
+        {
+            Console.WriteLine("[Host] headless: audio disabled");
+            return;
+        }
+
         try
         {
             _alc = ALContext.GetApi(true);

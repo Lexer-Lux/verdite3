@@ -267,13 +267,16 @@ public sealed partial class Gpu
             HleTri(v[0], v[1], v[2], tex, gouraud, semi, raw, clut);
             if (quad) HleTri(v[1], v[2], v[3], tex, gouraud, semi, raw, clut);
         }
-        else
+        else if (!NoRaster)
         {
             RasterTriangle(v[0], v[1], v[2], tex, gouraud, semi, raw, clut);
             if (quad) RasterTriangle(v[1], v[2], v[3], tex, gouraud, semi, raw, clut);
         }
     }
     
+    /// <summary>Skip software triangle rasterization in simulation-only checks.</summary>
+    public static bool NoRaster;
+
     // 0052. The game culls on whole pixels (NCLIP > 0 on the first three corners); count
     // the polygons whose fractional corners wind the other way, and those with corners
     // both with and without a fraction.
