@@ -123,7 +123,8 @@ internal static class Onboarding
 
     // ---- Reading what is set ----
 
-    static string? Stored(string key) => ConfigManager.View.Values.TryGetValue(key, out var v) ? v : null;
+    static string? Stored(string key) => BindingStorage.IsKey(key) ? BindingStorage.Read(key)
+        : ConfigManager.View.Values.TryGetValue(key, out var v) ? v : null;
 
     /// <summary>What a key means: its text, else its declared default, else null.</summary>
     static string? Effective(OnboardingSpec spec, string key, string? text) =>
@@ -336,10 +337,25 @@ internal static class Onboarding
             foreach (var (key, value) in set)
                 want[key] = Resolve(value);
 
+        // Validate binding fields before changing either settings store.
+        foreach (var (key, value) in want)
+            if (BindingStorage.IsKey(key)) BindingStorage.Validate(key, Effective(spec, key, value));
+
         var values = ConfigManager.View.Values;
         var changed = new List<string>();
+        bool bindingsChanged = false;
         foreach (var (key, value) in want)
         {
+            if (BindingStorage.IsKey(key))
+            {
+                string target = Effective(spec, key, value)!;
+                if (SameText(Stored(key), target)) continue;
+                BindingStorage.Write(key, target);
+                bindingsChanged = true;
+                changed.Add(key);
+                Console.WriteLine($"[{tag}] setup: {key}={target}");
+                continue;
+            }
             var text = value is not null && spec.Defaults.TryGetValue(key, out var d) && SameText(value, d) ? null : value;
             var old = Stored(key);
             bool differs = !SameText(Effective(spec, key, old), Effective(spec, key, text));
@@ -356,6 +372,7 @@ internal static class Onboarding
         }
 
         ConfigManager.View.SetInt(FlagKey, spec.Version);
+        if (bindingsChanged) ConfigManager.SaveGame();
         Rt.SaveView();
 
         if (changed.Any(k => WindowKeys.Contains(k, StringComparer.OrdinalIgnoreCase)))
@@ -366,6 +383,7 @@ internal static class Onboarding
             foreach (var key in changed)
             {
                 if (WindowKeys.Contains(key, StringComparer.OrdinalIgnoreCase)) continue;
+                if (BindingStorage.IsKey(key)) continue; // already applied to the live binding table
                 bool applied;
                 try { applied = live(key, Effective(spec, key, Stored(key))); }
                 catch (Exception e)
