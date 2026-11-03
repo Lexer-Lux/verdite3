@@ -97,10 +97,16 @@ or reloading setup does not replace it. Explicitly choosing Classic or Modern
 writes the chosen tables. Player-two bindings, disc/card paths and unrelated
 settings are outside the profile.
 
-The binding page owns the setup's controls choices. The old movement/turning
-preset writes were removed from setup so another setup page cannot overwrite
-the same controls. Enemy turn speed remains its own slider page. Advanced
-native Input controls are still available.
+The original Controls step contains the Classic/Modern binding choice, the
+upstream digital/analog movement choice, and haptics. The duplicate later Controls
+page was removed. The binding group owns only the binding tables and separate
+run; movement owns analog enable, and Turning owns camera style/acceleration. Binding choices leave custom
+sensitivity, acceleration and ease unchanged. Enemy turn speed remains its own
+slider page, and advanced native Input controls remain available. First-run and
+rerun setup both have six steps: Display, Controls, Presentation, Gameplay,
+Turning, Summary. Turning retains the original one-stick, twin-stick and
+accelerated twin-stick choices alongside the enemy-turn slider. It no longer
+follows the unrelated Gameplay preset automatically.
 
 The shared onboarding extension is in the Lexer-owned `verdite-core` fork,
 branch `codex/kf3-binding-setup`, with shared-tree commits kept separate from
@@ -122,12 +128,18 @@ An opt-in AutoStart acknowledgement is restricted to the startup wait-any caller
 The following release caller `0x80027A54` and unrelated reads get no injected
 acknowledgement.
 
-The focused check passed after the native rebuild, including the menu-page
-assertion. The actual setup binding page and Input profile controls were rendered
-offscreen from ImGui draw lists, using the runtime's Noto Sans font and theme.
-Inspected: first-run Classic at 1200x800, first-run Modern at 760x500 with 1.5 UI
-scale, rerun Custom at both sizes, and the Input buttons at 800x240 and 420x260
-with 1.5 scale. Controls and text fit without clipping in these views.
+The focused check passed after the native rebuild, including actual first-run
+and rerun popup navigation/Finish. Both have six steps; Keep preserves custom
+bindings byte-for-byte and binding presets preserve custom movement/camera
+values. The actual Controls step was rendered offscreen from ImGui draw lists
+with the runtime's Noto Sans font and theme: first-run Classic and rerun Custom
+at 1280x720, plus first-run Modern and rerun Custom at 640x480/1.5 UI scale.
+The narrow view's ordinary scrollbar reaches movement and haptics; selectors
+show their complete preset labels after the shared GPU-cost reserve fix.
+The long keyboard prompt in the narrow footer is still partly behind Back/Next;
+those buttons remain visible. The original camera choices and independent enemy
+slider were also inspected on Turning, step 5 of 6. No host, GL or audio device
+was initialized by these CPU rasterization fixtures.
 
 Private headless gameplay measured equal two-second input segments: walk 5,730
 units, held Run 9,606 and Interact 5,730. The native walk limit was 200, 336 and

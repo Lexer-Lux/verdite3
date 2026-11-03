@@ -44,6 +44,18 @@ try
         var turning = specJson.RootElement.GetProperty("pages").EnumerateArray().Single(p => p.GetProperty("id").GetString() == "turning");
         Check(turning.GetProperty("presets").EnumerateArray().All(p => p.GetProperty("value").GetDouble() == 3),
             "setup presets retain proportional enemy compensation");
+        Check(specJson.RootElement.GetProperty("pages").GetArrayLength() == 1,
+            "the old standalone Controls choice page is deleted");
+        var controls = specJson.RootElement.GetProperty("categories")[0];
+        Check(controls.GetProperty("id").GetString() == "controls" && controls.GetProperty("groups").EnumerateArray()
+            .Select(g => g.GetProperty("id").GetString()).SequenceEqual(new[] { "bindings", "movement", "haptics" }),
+            "original Controls step owns bindings, original movement and haptics together");
+        var bindingSets = controls.GetProperty("groups")[0].GetProperty("tiers").EnumerateArray().Select(t => t.GetProperty("set")).ToArray();
+        Check(bindingSets.Length == 3 && bindingSets[0].GetRawText() == bindingSets[1].GetRawText(),
+            "three-tier schema collapses identical Classic entries into one choice");
+        Check(bindingSets.All(s => !s.TryGetProperty(Analog.ControlsKey, out _) && !s.TryGetProperty(Analog.OnKey, out _) && !s.TryGetProperty(Analog.AccelKey, out _) &&
+            !s.TryGetProperty(Analog.TurnSensKey, out _) && !s.TryGetProperty(Analog.PitchSensKey, out _) && !s.TryGetProperty(Analog.EaseKey, out _)),
+            "binding preset does not own movement, acceleration, sensitivity or ease");
     }
     ConfigManager.Game.Keys = KeyLayout.Layout();
     ConfigManager.Game.Pad = new();
@@ -60,9 +72,20 @@ try
     ConfigManager.SaveGame();
     string custom = File.ReadAllText("settings.json");
     Check(Setup.ControlProfile == -1, "custom binding detects Custom");
+    Rt.View.SetFloat(Analog.TurnSensKey, 2.4f);
+    Rt.View.SetFloat(Analog.PitchSensKey, 1.7f);
+    Rt.View.SetInt(Analog.EaseKey, 1);
+    Rt.View.SetInt(Analog.AccelKey, 1);
+    Rt.View.SetInt(Analog.OnKey, 0);
+    Rt.View.SetInt(Analog.ControlsKey, 1);
+    string customLook = Json(new[] { Rt.View.GetFloat(Analog.TurnSensKey), Rt.View.GetFloat(Analog.PitchSensKey),
+        Rt.View.GetFloat(Analog.EaseKey), Rt.View.GetFloat(Analog.AccelKey), Rt.View.GetFloat(Analog.OnKey), Rt.View.GetFloat(Analog.ControlsKey) });
+    void CheckLook() => Check(customLook == Json(new[] { Rt.View.GetFloat(Analog.TurnSensKey), Rt.View.GetFloat(Analog.PitchSensKey),
+        Rt.View.GetFloat(Analog.EaseKey), Rt.View.GetFloat(Analog.AccelKey), Rt.View.GetFloat(Analog.OnKey), Rt.View.GetFloat(Analog.ControlsKey) }), "binding choice preserves independent custom look/movement values");
     Setup.Install();
     Check(File.ReadAllText("settings.json") == custom && ConfigManager.Game.Keys.Cross == "F11", "rerun setup does not rewrite custom bindings");
     Setup.ApplyControlProfile(true);
+    CheckLook();
     var game = ConfigManager.Game;
     Check(game.Keys.Cross == "E" && game.Keys.L3 == "ShiftLeft" && game.Keys.Circle == "Tab" && game.Keys.Start == "Enter", "Modern keyboard retains separate menus");
     Check(game.Pad.Square.SequenceEqual(new[] { 10, 101 }) && game.Pad.Triangle.SequenceEqual(new[] { 9, 100 }), "both shoulders per combat action");
@@ -72,8 +95,42 @@ try
     ConfigManager.Load();
     Check(Setup.ControlProfile == 1 && ConfigManager.Game.Keys.Cross == "E", "Modern binding disk reload");
     Setup.ApplyControlProfile(false);
+    CheckLook();
     Check(Json(ConfigManager.Game.Keys) == baselineKeys && Json(ConfigManager.Game.Pad) == baselinePad && Json(ConfigManager.Game.PadAnalog) == baselineAnalog, "Classic restores the captured upstream tables");
     Check(!SeparateRun.Enabled && ConfigManager.Game.Keys2.Cross == "F12" && ConfigManager.Game.Pad2.Cross.SequenceEqual(new[] { 42 }) && ConfigManager.Game.CdPath == "unrelated-disc-path", "player two and paths untouched");
+
+    // Exercise the actual shared popup, rather than reproducing its page math.
+    var assembly = typeof(Setup).Assembly;
+    var onboardingType = assembly.GetType("Verdite.Core.Onboarding")!;
+    onboardingType.GetField("_monitorRead", BindingFlags.NonPublic | BindingFlags.Static)!.SetValue(null, true);
+    var popupType = assembly.GetType("Verdite.Core.OnboardingPopup")!;
+    var pageType = popupType.GetNestedType("Page", BindingFlags.NonPublic)!;
+    object Spec() => typeof(Setup).GetField("_spec", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
+    foreach (bool inGame in new[] { false, true })
+    {
+        ConfigManager.Game.Keys.Cross = "F11";
+        ConfigManager.Game.Pad.Circle = [42];
+        ConfigManager.SaveGame();
+        string beforeWizard = File.ReadAllText("settings.json");
+        var popup = (Popup)Activator.CreateInstance(popupType, Spec(), "KF3", inGame)!;
+        popup.Open();
+        popupType.GetField("_page", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(popup, Enum.Parse(pageType, "Display"));
+        var order = new List<string>();
+        while (popupType.GetField("_page", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(popup)!.ToString() != "Summary")
+        {
+            order.Add((string)popupType.GetMethod("StepText", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(popup, null)!);
+            popupType.GetMethod("Forward", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(popup, null);
+        }
+        order.Add((string)popupType.GetMethod("StepText", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(popup, null)!);
+        Check(order.Count == 6 && order.Select((text, index) => text.Contains($"{index + 1}") && text.Contains("6")).All(v => v),
+            "actual first/rerun navigation has six ordered steps with Controls only at step 2");
+        popupType.GetMethod("Finish", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(popup, null);
+        Check(File.ReadAllText("settings.json") == beforeWizard && ConfigManager.Game.Keys.Cross == "F11" &&
+            ConfigManager.Game.Pad.Circle.SequenceEqual(new[] { 42 }), "first/rerun Keep preserves custom bindings byte-for-byte");
+        CheckLook();
+        popup.Close();
+    }
+    Setup.ApplyControlProfile(false);
 
     var mem = new TestMemory();
     ushort[] logical = [0x1000, 0x4000, 0x8000, 0x2000, 0x80, 0x20, 0x10, 0x40, 4, 1, 8, 2, 0x100, 0x800];

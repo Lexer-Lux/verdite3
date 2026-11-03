@@ -355,6 +355,228 @@
       "label": "kf3.setup.controls",
       "groups": [
         {
+          "id": "bindings",
+          "label": "kf3.setup.bindingpreset",
+          "tiers": [
+            {
+              "label": "kf3.setup.bindings.classic",
+              "desc": "kf3.setup.bindings.classic.desc",
+              "set": {
+                "input.keys.Up": "W",
+                "input.keys.Down": "S",
+                "input.keys.L1": "A",
+                "input.keys.R1": "D",
+                "input.keys.Left": "Left",
+                "input.keys.Right": "Right",
+                "input.keys.L2": "",
+                "input.keys.R2": "",
+                "input.keys.Square": "Space",
+                "input.keys.Cross": "F",
+                "input.keys.Triangle": "Q",
+                "input.keys.Circle": "Tab",
+                "input.keys.Start": "Enter",
+                "input.keys.Select": "ShiftRight",
+                "input.keys.L3": "",
+                "input.keys.R3": "",
+                "input.pad.Cross": "0",
+                "input.pad.Circle": "1",
+                "input.pad.Square": "2",
+                "input.pad.Triangle": "3",
+                "input.pad.L1": "9",
+                "input.pad.R1": "10",
+                "input.pad.L2": "100",
+                "input.pad.R2": "101",
+                "input.pad.L3": "7",
+                "input.pad.R3": "8",
+                "input.pad.Start": "6",
+                "input.pad.Select": "4",
+                "input.pad.Up": "11,104",
+                "input.pad.Down": "12,105",
+                "input.pad.Left": "13,102",
+                "input.pad.Right": "14,103",
+                "input.pad.LeftStickX": "0",
+                "input.pad.LeftStickY": "1",
+                "input.pad.RightStickX": "2",
+                "input.pad.RightStickY": "3",
+                "input.padanalog.Cross": "0",
+                "input.padanalog.Circle": "1",
+                "input.padanalog.Square": "2",
+                "input.padanalog.Triangle": "3",
+                "input.padanalog.L1": "9",
+                "input.padanalog.R1": "10",
+                "input.padanalog.L2": "100",
+                "input.padanalog.R2": "101",
+                "input.padanalog.L3": "7",
+                "input.padanalog.R3": "8",
+                "input.padanalog.Start": "6",
+                "input.padanalog.Select": "4",
+                "input.padanalog.Up": "11",
+                "input.padanalog.Down": "12",
+                "input.padanalog.Left": "13",
+                "input.padanalog.Right": "14",
+                "input.padanalog.LeftStickX": "0",
+                "input.padanalog.LeftStickY": "1",
+                "input.padanalog.RightStickX": "2",
+                "input.padanalog.RightStickY": "3",
+                "kf3.controls.separaterun": "0"
+              }
+            },
+            {
+              "label": "kf3.setup.bindings.classic",
+              "desc": "kf3.setup.bindings.classic.desc",
+              "set": {
+                "input.keys.Up": "W",
+                "input.keys.Down": "S",
+                "input.keys.L1": "A",
+                "input.keys.R1": "D",
+                "input.keys.Left": "Left",
+                "input.keys.Right": "Right",
+                "input.keys.L2": "",
+                "input.keys.R2": "",
+                "input.keys.Square": "Space",
+                "input.keys.Cross": "F",
+                "input.keys.Triangle": "Q",
+                "input.keys.Circle": "Tab",
+                "input.keys.Start": "Enter",
+                "input.keys.Select": "ShiftRight",
+                "input.keys.L3": "",
+                "input.keys.R3": "",
+                "input.pad.Cross": "0",
+                "input.pad.Circle": "1",
+                "input.pad.Square": "2",
+                "input.pad.Triangle": "3",
+                "input.pad.L1": "9",
+                "input.pad.R1": "10",
+                "input.pad.L2": "100",
+                "input.pad.R2": "101",
+                "input.pad.L3": "7",
+                "input.pad.R3": "8",
+                "input.pad.Start": "6",
+                "input.pad.Select": "4",
+                "input.pad.Up": "11,104",
+                "input.pad.Down": "12,105",
+                "input.pad.Left": "13,102",
+                "input.pad.Right": "14,103",
+                "input.pad.LeftStickX": "0",
+                "input.pad.LeftStickY": "1",
+                "input.pad.RightStickX": "2",
+                "input.pad.RightStickY": "3",
+                "input.padanalog.Cross": "0",
+                "input.padanalog.Circle": "1",
+                "input.padanalog.Square": "2",
+                "input.padanalog.Triangle": "3",
+                "input.padanalog.L1": "9",
+                "input.padanalog.R1": "10",
+                "input.padanalog.L2": "100",
+                "input.padanalog.R2": "101",
+                "input.padanalog.L3": "7",
+                "input.padanalog.R3": "8",
+                "input.padanalog.Start": "6",
+                "input.padanalog.Select": "4",
+                "input.padanalog.Up": "11",
+                "input.padanalog.Down": "12",
+                "input.padanalog.Left": "13",
+                "input.padanalog.Right": "14",
+                "input.padanalog.LeftStickX": "0",
+                "input.padanalog.LeftStickY": "1",
+                "input.padanalog.RightStickX": "2",
+                "input.padanalog.RightStickY": "3",
+                "kf3.controls.separaterun": "0"
+              }
+            },
+            {
+              "label": "kf3.setup.bindings.modern",
+              "desc": "kf3.setup.bindings.modern.desc",
+              "set": {
+                "input.keys.Up": "W",
+                "input.keys.Down": "S",
+                "input.keys.L1": "A",
+                "input.keys.R1": "D",
+                "input.keys.Left": "Left",
+                "input.keys.Right": "Right",
+                "input.keys.L2": "",
+                "input.keys.R2": "",
+                "input.keys.Square": "Space",
+                "input.keys.Cross": "E",
+                "input.keys.Triangle": "Q",
+                "input.keys.Circle": "Tab",
+                "input.keys.Start": "Enter",
+                "input.keys.Select": "ShiftRight",
+                "input.keys.L3": "ShiftLeft",
+                "input.keys.R3": "",
+                "input.pad.Cross": "0",
+                "input.pad.Circle": "3",
+                "input.pad.Square": "10,101",
+                "input.pad.Triangle": "9,100",
+                "input.pad.L1": "",
+                "input.pad.R1": "",
+                "input.pad.L2": "",
+                "input.pad.R2": "",
+                "input.pad.L3": "1",
+                "input.pad.R3": "8",
+                "input.pad.Start": "6",
+                "input.pad.Select": "4",
+                "input.pad.Up": "11,104",
+                "input.pad.Down": "12,105",
+                "input.pad.Left": "13,102",
+                "input.pad.Right": "14,103",
+                "input.pad.LeftStickX": "0",
+                "input.pad.LeftStickY": "1",
+                "input.pad.RightStickX": "2",
+                "input.pad.RightStickY": "3",
+                "input.padanalog.Cross": "0",
+                "input.padanalog.Circle": "3",
+                "input.padanalog.Square": "10,101",
+                "input.padanalog.Triangle": "9,100",
+                "input.padanalog.L1": "",
+                "input.padanalog.R1": "",
+                "input.padanalog.L2": "",
+                "input.padanalog.R2": "",
+                "input.padanalog.L3": "1",
+                "input.padanalog.R3": "8",
+                "input.padanalog.Start": "6",
+                "input.padanalog.Select": "4",
+                "input.padanalog.Up": "11",
+                "input.padanalog.Down": "12",
+                "input.padanalog.Left": "13",
+                "input.padanalog.Right": "14",
+                "input.padanalog.LeftStickX": "0",
+                "input.padanalog.LeftStickY": "1",
+                "input.padanalog.RightStickX": "2",
+                "input.padanalog.RightStickY": "3",
+                "kf3.controls.separaterun": "1"
+              }
+            }
+          ]
+        },
+        {
+          "id": "movement",
+          "label": "kf3.setup.movement",
+          "tiers": [
+            {
+              "label": "kf3.setup.movement.0.name",
+              "desc": "kf3.setup.movement.0",
+              "set": {
+                "kf3.analog.on": "0"
+              }
+            },
+            {
+              "label": "kf3.setup.movement.1.name",
+              "desc": "kf3.setup.movement.1",
+              "set": {
+                "kf3.analog.on": null
+              }
+            },
+            {
+              "label": "kf3.setup.movement.1.name",
+              "desc": "kf3.setup.movement.2",
+              "set": {
+                "kf3.analog.on": null
+              }
+            }
+          ]
+        },
+        {
           "id": "haptics",
           "label": "kf3.setup.haptics",
           "tiers": [
@@ -632,162 +854,43 @@
   ],
   "pages": [
     {
-      "id": "bindings",
-      "title": "kf3.setup.bindings",
+      "id": "turning",
+      "title": "kf3.setup.turning",
       "body": [
-        "kf3.setup.bindings.body"
+        "kf3.setup.turning.problem",
+        "kf3.setup.turning.port",
+        "kf3.setup.turning.solution"
       ],
+      "label": "kf3.setup.turning.controls",
       "options": [
         {
-          "label": "kf3.setup.bindings.classic",
+          "label": "kf3.setup.turning.tank",
+          "desc": "kf3.setup.turning.tank.desc",
           "set": {
-            "input.keys.Up": "W",
-            "input.keys.Down": "S",
-            "input.keys.L1": "A",
-            "input.keys.R1": "D",
-            "input.keys.Left": "Left",
-            "input.keys.Right": "Right",
-            "input.keys.L2": "",
-            "input.keys.R2": "",
-            "input.keys.Square": "Space",
-            "input.keys.Cross": "F",
-            "input.keys.Triangle": "Q",
-            "input.keys.Circle": "Tab",
-            "input.keys.Start": "Enter",
-            "input.keys.Select": "ShiftRight",
-            "input.keys.L3": "",
-            "input.keys.R3": "",
-            "input.pad.Cross": "0",
-            "input.pad.Circle": "1",
-            "input.pad.Square": "2",
-            "input.pad.Triangle": "3",
-            "input.pad.L1": "9",
-            "input.pad.R1": "10",
-            "input.pad.L2": "100",
-            "input.pad.R2": "101",
-            "input.pad.L3": "7",
-            "input.pad.R3": "8",
-            "input.pad.Start": "6",
-            "input.pad.Select": "4",
-            "input.pad.Up": "11,104",
-            "input.pad.Down": "12,105",
-            "input.pad.Left": "13,102",
-            "input.pad.Right": "14,103",
-            "input.pad.LeftStickX": "0",
-            "input.pad.LeftStickY": "1",
-            "input.pad.RightStickX": "2",
-            "input.pad.RightStickY": "3",
-            "input.padanalog.Cross": "0",
-            "input.padanalog.Circle": "1",
-            "input.padanalog.Square": "2",
-            "input.padanalog.Triangle": "3",
-            "input.padanalog.L1": "9",
-            "input.padanalog.R1": "10",
-            "input.padanalog.L2": "100",
-            "input.padanalog.R2": "101",
-            "input.padanalog.L3": "7",
-            "input.padanalog.R3": "8",
-            "input.padanalog.Start": "6",
-            "input.padanalog.Select": "4",
-            "input.padanalog.Up": "11",
-            "input.padanalog.Down": "12",
-            "input.padanalog.Left": "13",
-            "input.padanalog.Right": "14",
-            "input.padanalog.LeftStickX": "0",
-            "input.padanalog.LeftStickY": "1",
-            "input.padanalog.RightStickX": "2",
-            "input.padanalog.RightStickY": "3",
-            "kf3.controls.separaterun": "0",
-            "kf3.analog.on": "1",
-            "kf3.controls": "0",
-            "kf3.analog.accel": "0"
-          }
+            "kf3.controls": "1",
+            "kf3.analog.accel": null
+          },
+          "value": null
         },
         {
-          "label": "kf3.setup.bindings.modern",
+          "label": "kf3.setup.turning.2d",
+          "desc": "kf3.setup.turning.2d.desc",
           "set": {
-            "input.keys.Up": "W",
-            "input.keys.Down": "S",
-            "input.keys.L1": "A",
-            "input.keys.R1": "D",
-            "input.keys.Left": "Left",
-            "input.keys.Right": "Right",
-            "input.keys.L2": "",
-            "input.keys.R2": "",
-            "input.keys.Square": "Space",
-            "input.keys.Cross": "E",
-            "input.keys.Triangle": "Q",
-            "input.keys.Circle": "Tab",
-            "input.keys.Start": "Enter",
-            "input.keys.Select": "ShiftRight",
-            "input.keys.L3": "ShiftLeft",
-            "input.keys.R3": "",
-            "input.pad.Cross": "0",
-            "input.pad.Circle": "3",
-            "input.pad.Square": "10,101",
-            "input.pad.Triangle": "9,100",
-            "input.pad.L1": "",
-            "input.pad.R1": "",
-            "input.pad.L2": "",
-            "input.pad.R2": "",
-            "input.pad.L3": "1",
-            "input.pad.R3": "8",
-            "input.pad.Start": "6",
-            "input.pad.Select": "4",
-            "input.pad.Up": "11,104",
-            "input.pad.Down": "12,105",
-            "input.pad.Left": "13,102",
-            "input.pad.Right": "14,103",
-            "input.pad.LeftStickX": "0",
-            "input.pad.LeftStickY": "1",
-            "input.pad.RightStickX": "2",
-            "input.pad.RightStickY": "3",
-            "input.padanalog.Cross": "0",
-            "input.padanalog.Circle": "3",
-            "input.padanalog.Square": "10,101",
-            "input.padanalog.Triangle": "9,100",
-            "input.padanalog.L1": "",
-            "input.padanalog.R1": "",
-            "input.padanalog.L2": "",
-            "input.padanalog.R2": "",
-            "input.padanalog.L3": "1",
-            "input.padanalog.R3": "8",
-            "input.padanalog.Start": "6",
-            "input.padanalog.Select": "4",
-            "input.padanalog.Up": "11",
-            "input.padanalog.Down": "12",
-            "input.padanalog.Left": "13",
-            "input.padanalog.Right": "14",
-            "input.padanalog.LeftStickX": "0",
-            "input.padanalog.LeftStickY": "1",
-            "input.padanalog.RightStickX": "2",
-            "input.padanalog.RightStickY": "3",
-            "kf3.controls.separaterun": "1",
-            "kf3.analog.on": "1",
-            "kf3.controls": "0",
-            "kf3.analog.accel": "0"
-          }
+            "kf3.controls": null,
+            "kf3.analog.accel": null
+          },
+          "value": null
+        },
+        {
+          "label": "kf3.setup.turning.2daccel",
+          "desc": "kf3.setup.turning.2daccel.desc",
+          "set": {
+            "kf3.controls": null,
+            "kf3.analog.accel": "1"
+          },
+          "value": null
         }
       ],
-      "presets": [
-        {
-          "option": 0
-        },
-        {
-          "option": 0
-        },
-        {
-          "option": 1
-        }
-      ],
-      "label": "kf3.setup.bindings"
-    },
-    {
-      "id": "turning",
-      "title": "kf3.setup.enemyturn",
-      "body": [],
-      "label": "",
-      "options": [],
       "slider": {
         "key": "kf3.enemyturn",
         "label": "kf3.setup.enemyturn",
@@ -800,15 +903,15 @@
       },
       "presets": [
         {
-          "option": -1,
+          "option": 0,
           "value": 3
         },
         {
-          "option": -1,
+          "option": 0,
           "value": 3
         },
         {
-          "option": -1,
+          "option": 1,
           "value": 3
         }
       ]
@@ -1170,11 +1273,6 @@
       "pt-BR": "Em janela",
       "es-419": "En ventana"
     },
-    "kf3.setup.bindings": {
-      "en": "Controls",
-      "pt-BR": "Controles",
-      "es-419": "Controles"
-    },
     "kf3.setup.bindings.classic": {
       "en": "Classic Controls",
       "pt-BR": "Controles clássicos",
@@ -1185,10 +1283,105 @@
       "pt-BR": "Controles modernos",
       "es-419": "Controles modernos"
     },
-    "kf3.setup.bindings.body": {
-      "en": "Classic keeps the upstream port controls. Modern uses the shoulders to attack and cast, Circle to run, Cross to interact, Triangle for inventory and Options for card/options. On keyboard, Modern uses E to interact and Shift to run. Custom bindings stay unchanged unless you select a preset.",
-      "pt-BR": "Clássico mantém os controles da versão original do port. Moderno usa os ombros para atacar e conjurar, Círculo para correr, Cruz para interagir, Triângulo para o inventário e Options para cartão/opções. No teclado, E interage e Shift corre. Seus atalhos permanecem até escolher um conjunto.",
-      "es-419": "Clásico mantiene los controles originales del port. Moderno usa los hombros para atacar y conjurar, Círculo para correr, Cruz para interactuar, Triángulo para inventario y Options para tarjeta/opciones. En teclado, E interactúa y Shift corre. Tus asignaciones se conservan hasta elegir un conjunto."
+    "kf3.setup.movement": {
+      "en": "Movement",
+      "pt-BR": "Movimento",
+      "es-419": "Movimiento"
+    },
+    "kf3.setup.movement.0": {
+      "en": "The D-pad only, as the PlayStation had. The analog sticks do nothing.",
+      "pt-BR": "Só o direcional, como no PlayStation. Os analógicos não fazem nada.",
+      "es-419": "Solo la cruceta, como en la PlayStation. Las palancas no hacen nada."
+    },
+    "kf3.setup.movement.0.name": {
+      "en": "D-pad only",
+      "pt-BR": "Só o direcional",
+      "es-419": "Solo la cruceta"
+    },
+    "kf3.setup.movement.1": {
+      "en": "The analog sticks are on. How they turn you is chosen on the turning page.",
+      "pt-BR": "Os analógicos estão ligados. Como eles viram você é escolhido na página de virada.",
+      "es-419": "Las palancas analógicas están activadas. Cómo te giran se elige en la página de giro."
+    },
+    "kf3.setup.movement.1.name": {
+      "en": "Analog sticks",
+      "pt-BR": "Analógicos",
+      "es-419": "Palancas analógicas"
+    },
+    "kf3.setup.movement.2": {
+      "en": "The analog sticks are on. How they turn you is chosen on the turning page.",
+      "pt-BR": "Os analógicos estão ligados. Como eles viram você é escolhido na página de virada.",
+      "es-419": "Las palancas analógicas están activadas. Cómo te giran se elige en la página de giro."
+    },
+    "kf3.setup.bindingpreset": {
+      "en": "Control preset",
+      "pt-BR": "Predefinição de controles",
+      "es-419": "Preajuste de controles"
+    },
+    "kf3.setup.bindings.classic.desc": {
+      "en": "The upstream port's keyboard and controller bindings.",
+      "pt-BR": "Os controles de teclado e controle originais do port.",
+      "es-419": "Los controles de teclado y mando originales del port."
+    },
+    "kf3.setup.bindings.modern.desc": {
+      "en": "RB/RT attack, LB/LT cast, Circle run, Cross interact, Triangle inventory, Options card/options. E interacts; Shift runs.",
+      "pt-BR": "RB/RT atacam, LB/LT lançam magia, Círculo corre, X interage, Triângulo abre o inventário, Options abre opções. E interage; Shift corre.",
+      "es-419": "RB/RT atacan, LB/LT lanzan magia, Círculo corre, X interactúa, Triángulo abre el inventario, Options abre opciones. E interactúa; Shift corre."
+    },
+    "kf3.setup.turning": {
+      "en": "Turning and difficulty",
+      "pt-BR": "Virada e dificuldade",
+      "es-419": "Giro y dificultad"
+    },
+    "kf3.setup.turning.2d": {
+      "en": "Twin stick (2D)",
+      "pt-BR": "Dois analógicos (2D)",
+      "es-419": "Dos palancas (2D)"
+    },
+    "kf3.setup.turning.2d.desc": {
+      "en": "The left stick walks and strafes; the right stick turns and looks. Your sensitivity and easing stay unchanged.",
+      "pt-BR": "O analógico esquerdo anda e se desloca de lado; o direito vira e olha. A sensibilidade e a suavização permanecem inalteradas.",
+      "es-419": "La palanca izquierda camina y se desplaza de lado; la derecha gira y mira. La sensibilidad y el suavizado no cambian."
+    },
+    "kf3.setup.turning.2daccel": {
+      "en": "Twin stick (2D) with acceleration",
+      "pt-BR": "Dois analógicos (2D) com aceleração",
+      "es-419": "Dos palancas (2D) con aceleración"
+    },
+    "kf3.setup.turning.2daccel.desc": {
+      "en": "Twin-stick movement, with faster right-stick turns while held out. Your sensitivity, easing and enemy turn speed stay unchanged.",
+      "pt-BR": "Movimento com dois analógicos, com giro mais rápido ao manter o direito inclinado. A sensibilidade, a suavização e o giro dos inimigos permanecem inalterados.",
+      "es-419": "Movimiento con dos palancas, con giro más rápido al mantener inclinada la derecha. La sensibilidad, el suavizado y el giro de los enemigos no cambian."
+    },
+    "kf3.setup.turning.controls": {
+      "en": "Camera style",
+      "pt-BR": "Estilo da câmera",
+      "es-419": "Estilo de cámara"
+    },
+    "kf3.setup.turning.port": {
+      "en": "Camera sensitivity and easing keep your current settings. Look acceleration can speed up right-stick turns while held out.",
+      "pt-BR": "A sensibilidade e a suavização da câmera mantêm suas configurações atuais. A aceleração pode aumentar a velocidade de giro ao manter o analógico direito inclinado.",
+      "es-419": "La sensibilidad y el suavizado de la cámara conservan tus ajustes actuales. La aceleración puede aumentar la velocidad de giro al mantener inclinada la palanca derecha."
+    },
+    "kf3.setup.turning.problem": {
+      "en": "King's Field's fights are balanced around how fast you turn. On the PlayStation you turned at one fixed rate, and every creature was tuned to keep up with it.",
+      "pt-BR": "As lutas de King's Field são equilibradas em torno da velocidade com que você vira. No PlayStation você virava em uma velocidade fixa, e cada criatura foi ajustada para acompanhá-la.",
+      "es-419": "Los combates de King's Field están equilibrados en torno a la velocidad con que giras. En la PlayStation girabas a una velocidad fija, y cada criatura estaba ajustada para seguirla."
+    },
+    "kf3.setup.turning.solution": {
+      "en": "Enemy turn speed changes how quickly creatures turn toward you; wandering keeps the game's pace. Adjust it independently below.",
+      "pt-BR": "A velocidade de giro dos inimigos muda a rapidez com que as criaturas se voltam para você; a perambulação mantém o ritmo do jogo. Ajuste-a separadamente abaixo.",
+      "es-419": "La velocidad de giro de los enemigos cambia la rapidez con que las criaturas se vuelven hacia ti; su deambular mantiene el ritmo del juego. Ajústala por separado abajo."
+    },
+    "kf3.setup.turning.tank": {
+      "en": "Tank controls (3D)",
+      "pt-BR": "Controles de tanque (3D)",
+      "es-419": "Controles de tanque (3D)"
+    },
+    "kf3.setup.turning.tank.desc": {
+      "en": "The left stick walks and turns. Strafing uses the game's shoulder actions; the right stick is unused.",
+      "pt-BR": "O analógico esquerdo anda e vira. O deslocamento lateral usa as ações de ombro do jogo; o analógico direito não é usado.",
+      "es-419": "La palanca izquierda camina y gira. El desplazamiento lateral usa las acciones de hombro del juego; la palanca derecha no se usa."
     }
   }
 }

@@ -51,13 +51,15 @@ public static class Setup
     public static bool Busy => _opening || (_popup?.IsOpen ?? false);
 
     /// <summary>Actual bindings decide Classic, Modern or Custom; no profile marker.</summary>
-    public static int ControlProfile => _spec?.Pages.FirstOrDefault(p => p.Id == "bindings") is { } page
-        ? Onboarding.Detect(_spec, page).Option : -1;
+    public static int ControlProfile => BindingGroup is { } group
+        ? Onboarding.Detect(_spec!, group) switch { 0 or 1 => 0, 2 => 1, _ => -1 } : -1;
+
+    static SetupGroup? BindingGroup => _spec?.Categories.SelectMany(c => c.Groups).FirstOrDefault(g => g.Id == "bindings");
 
     public static void ApplyControlProfile(bool modern)
     {
-        if (_spec?.Pages.FirstOrDefault(p => p.Id == "bindings") is not { } page) return;
-        _last = Onboarding.Apply(_spec, [page.Options[modern ? 1 : 0].Set], "KF3");
+        if (BindingGroup is not { } group) return;
+        _last = Onboarding.Apply(_spec!, [group.Tiers[modern ? 2 : 0].Set], "KF3");
     }
 
     /// <summary>
