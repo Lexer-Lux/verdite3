@@ -79,6 +79,12 @@ from a file.
 
 ## The launcher
 
+When the runtime's explicit `Headless` mode is active, the launcher skips setup
+and popup registration/opening, waits for the build worker with `Join`, and
+reports build failures through the ordinary build log and an exception. It does
+not wait for an invisible wizard or hold an invisible failure popup forever.
+Headless startup does not complete setup or apply a preset on the player's behalf.
+
 `launcher/` is the shipped executable's code, shared: a port cannot ship its game
 (the recompiled code is a translation of the disc's), so it ships the inputs and
 the launcher builds the game on the player's machine on first run. It settles the
