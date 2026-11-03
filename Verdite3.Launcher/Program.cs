@@ -19,9 +19,9 @@ return Launcher.Run(new LauncherGame
     WrongDiscs = new Dictionary<string, string>
     {
         ["SLUS-00158"] =
-            "This is King's Field (SLUS-00158), which is a different game; Verdite2 plays it. " +
-            "The series was renumbered for the West: this port is of King's Field II " +
-            "(SLUS-00255), the US release of the Japanese King's Field III.",
+            "This is the US disc for King's Field II (SLUS-00158); Verdite2 plays it. " +
+            "This port targets King's Field III (SLUS-00255), released in the US " +
+            "as King's Field II.",
     },
 
     RecompilerConfig = "kf3.json",
