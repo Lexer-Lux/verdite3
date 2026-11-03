@@ -416,8 +416,7 @@ public sealed partial class GlCore
         BeginWorldLights();
         _gl.ActiveTexture(TextureUnit.Texture0 + HalvesUnit);
         _gl.BindTexture(TextureTarget.Texture2D, _halvesTex);
-        _gl.TexSubImage2D<byte>(TextureTarget.Texture2D, 0, 0, 0, RetainedScene.HalvesW, RetainedScene.HalvesH,
-            PixelFormat.RedInteger, PixelType.UnsignedByte, mirror ? f.MirrorHalves : f.MainHalves);
+        UploadHalves(mirror ? f.MirrorHalves : f.MainHalves, mirror ? null : f.MainHalfGlow);
         if (_uwHalfGate >= 0) _gl.Uniform1(_uwHalfGate, 1);
         if (_uwAniso >= 0) _gl.Uniform1(_uwAniso, (float)GteDepth.Anisotropy);
         if (_uwTrueColor >= 0) _gl.Uniform1(_uwTrueColor, GteDepth.TrueColor ? 1f : 0f);
@@ -1323,8 +1322,7 @@ public sealed partial class GlCore
                        false, 0f, v.H, float.PositiveInfinity);
             _gl.ActiveTexture(TextureUnit.Texture0 + HalvesUnit);
             _gl.BindTexture(TextureTarget.Texture2D, _halvesTex);
-            _gl.TexSubImage2D<byte>(TextureTarget.Texture2D, 0, 0, 0, RetainedScene.HalvesW, RetainedScene.HalvesH,
-                PixelFormat.RedInteger, PixelType.UnsignedByte, f.MainHalves);
+            UploadHalves(f.MainHalves);
             _gl.ActiveTexture(TextureUnit.Texture0);
 
             _gl.UseProgram(_progWorldNrm);

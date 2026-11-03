@@ -534,6 +534,9 @@ public static class RetainedScene
         /// view's gate, which nothing grows or fades. 0089: the port may add halves
         /// past the walk's reach (<see cref="CurrentMainHalves"/>).</summary>
         public readonly byte[] MainHalves = new byte[HalvesW * HalvesH];
+        /// <summary>Optional RGB additive glow per main-view map half. Zero is the
+        /// original material. Cleared every frame; never changes visibility.</summary>
+        public readonly byte[] MainHalfGlow = new byte[HalvesW * HalvesH * 3];
         /// <summary>0089. The main view's <see cref="DistanceFade"/>: its edge and band
         /// in world units from the camera's X and Z, and its depth limit; all 0 is none.</summary>
         public float FadeEdge, FadeBand, FadeDepth;
@@ -629,6 +632,7 @@ public static class RetainedScene
         MirrorSerial = 0;
         Array.Clear(f.Halves);
         Array.Clear(f.MainHalves);
+        Array.Clear(f.MainHalfGlow);
         f.FadeEdge = f.FadeBand = f.FadeDepth = 0f;
     }
 
@@ -705,6 +709,20 @@ public static class RetainedScene
     /// past the walk's reach: 255 is drawn, and a half written here is neither
     /// reflected nor noted for the mirror. Empty outside a frame.</summary>
     public static Span<byte> CurrentMainHalves => Current.Serial == _serial ? Current.MainHalves : Span<byte>.Empty;
+
+    /// <summary>Colour an existing main-view map half without making it visible.
+    /// Components are additive 8-bit colour before atmospheric fog. The normal
+    /// depth, texture holes and distance fade still decide whether a pixel draws.
+    /// A port or source mod republishes this each frame; reflections are unchanged.</summary>
+    public static bool SetHalfGlow(int x, int z, int upper, byte red, byte green, byte blue)
+    {
+        if ((uint)x >= 80u || (uint)z >= 80u || (uint)upper >= 2u || Current.Serial != _serial) return false;
+        int at = ((z * 80 + x) * 2 + upper) * 3;
+        Current.MainHalfGlow[at] = red;
+        Current.MainHalfGlow[at + 1] = green;
+        Current.MainHalfGlow[at + 2] = blue;
+        return true;
+    }
 
     /// <summary>0089. The current frame's <see cref="DistanceFade"/>: <paramref name="edge"/>
     /// and <paramref name="band"/> in world units of horizontal distance from the camera

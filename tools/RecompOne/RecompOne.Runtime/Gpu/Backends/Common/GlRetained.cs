@@ -43,6 +43,23 @@ public sealed partial class GlCore
 
     uint _halvesTex;
     int _uwHalfGate;
+    readonly byte[] _packedHalves = new byte[RetainedScene.HalvesW * RetainedScene.HalvesH * 4];
+
+    // R retains the existing visibility/fade weight. GBA carry optional RGB glow,
+    // avoiding an extra texture unit or any change to a half's visibility.
+    void UploadHalves(byte[] weights, byte[]? glow = null)
+    {
+        for (int i = 0; i < weights.Length; i++)
+        {
+            int at = i * 4, rgb = i * 3;
+            _packedHalves[at] = weights[i];
+            _packedHalves[at + 1] = glow?[rgb] ?? 0;
+            _packedHalves[at + 2] = glow?[rgb + 1] ?? 0;
+            _packedHalves[at + 3] = glow?[rgb + 2] ?? 0;
+        }
+        _gl.TexSubImage2D<byte>(TextureTarget.Texture2D, 0, 0, 0, RetainedScene.HalvesW, RetainedScene.HalvesH,
+            PixelFormat.RgbaInteger, PixelType.UnsignedByte, _packedHalves);
+    }
 
     // Authored lights, glows and mipmaps in the world program (0072 amended).
     int _uwWorldLit, _uwLightN, _uwLightPos, _uwLightCol, _uwLightDir, _uwLightCentre, _uwLightH, _uwEmitOn, _uwMipOn;
@@ -101,8 +118,8 @@ public sealed partial class GlCore
 
         _halvesTex = _gl.GenTexture();
         _gl.BindTexture(TextureTarget.Texture2D, _halvesTex);
-        _gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.R8ui, RetainedScene.HalvesW, RetainedScene.HalvesH, 0,
-            PixelFormat.RedInteger, PixelType.UnsignedByte, null);
+        _gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8ui, RetainedScene.HalvesW, RetainedScene.HalvesH, 0,
+            PixelFormat.RgbaInteger, PixelType.UnsignedByte, null);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Nearest);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Nearest);
         _gl.BindTexture(TextureTarget.Texture2D, 0);
@@ -202,8 +219,7 @@ public sealed partial class GlCore
         // eye's level, which a mirror (pitch negated, same cone) shares.
         _gl.ActiveTexture(TextureUnit.Texture0 + HalvesUnit);
         _gl.BindTexture(TextureTarget.Texture2D, _halvesTex);
-        _gl.TexSubImage2D<byte>(TextureTarget.Texture2D, 0, 0, 0, RetainedScene.HalvesW, RetainedScene.HalvesH,
-            PixelFormat.RedInteger, PixelType.UnsignedByte, f.Halves);
+        UploadHalves(f.Halves);
         _gl.ActiveTexture(TextureUnit.Texture0);
         if (_uwHalfGate >= 0) _gl.Uniform1(_uwHalfGate, RetainedScene.HalfGate ? 1 : 0);
         SendWorldAtmos();

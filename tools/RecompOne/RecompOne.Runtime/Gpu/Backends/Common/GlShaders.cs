@@ -1628,6 +1628,8 @@ internal static class GlShaders
         // 0072, amended. A half's weight in the gate, faded in and out by the port;
         // PrimFs dithers it away. 1 for everything the gate does not weigh.
         flat out float vFade;
+        // Optional per-half main-view material glow, carried through real geometry.
+        flat out vec3 vMapGlow;
         // 0088. A record-lit map corner while NeighbourBlend is on: x bit 31 set, 30
         // the fog on, 29 and 28 the fog and the light blended, bits 14-19 the half's
         // record, 0-13 its half flag; y its RGBC. Its world X and Z, and its own
@@ -1802,6 +1804,7 @@ internal static class GlShaders
         void main() {
             vec3 w = inWorld, color = inColorF, cue = inCue;
             uint flags = inFlags, rgbc = inRgbc;
+            vMapGlow = vec3(0.0);
             ivec3 litDots = ivec3(0);
             vNb = uvec2(0u);
             vNbXZ = vec2(0.0);
@@ -1834,8 +1837,10 @@ internal static class GlShaders
             uint hid = (flags >> 13) & 0x3FFFu;
             vFade = 1.0;
             if (uHalfGate != 0) {
-                uint weight = hid == 0u ? 255u
-                    : texelFetch(uHalves, ivec2(int((hid - 1u) % 160u), int((hid - 1u) / 160u)), 0).r;
+                uvec4 halfData = hid == 0u ? uvec4(255u, 0u, 0u, 0u)
+                    : texelFetch(uHalves, ivec2(int((hid - 1u) % 160u), int((hid - 1u) / 160u)), 0);
+                uint weight = halfData.r;
+                if (uHalfGate == 1 && uModel == 0) vMapGlow = vec3(halfData.gba) / 255.0;
                 bool drawn = weight != 0u;
                 if (uHalfGate == 1) vFade = float(weight) / 255.0;
                 if (drawn != (uHalfGate == 1)) {
@@ -1962,6 +1967,7 @@ internal static class GlShaders
         flat out uint vMat;
         flat out float vFade;
         // 0088. The world program's; no packet is blended.
+        flat out vec3 vMapGlow;
         flat out uvec2 vNb;
         out vec2 vNbXZ;
         noperspective out vec3 vNbDots;
@@ -1993,6 +1999,7 @@ internal static class GlShaders
             int inTexpage = int(inTexpageF + 0.5);
 
             vColor = vec4(inColorF, 0.0) / 255.0;
+            vMapGlow = vec3(0.0);
             vLit = inLit;
             vFog = inFog;
             vCue = vec2(0.0);
@@ -2046,6 +2053,7 @@ internal static class GlShaders
         flat in uvec2 vTex;
         flat in uint vMat;
         flat in float vFade;
+        flat in vec3 vMapGlow;
         // 0088. NeighbourBlend's corner word, world X and Z, and own light dots (WorldVs).
         flat in uvec2 vNb;
         in vec2 vNbXZ;
@@ -2689,6 +2697,9 @@ internal static class GlShaders
                 gSpec8 = clamp(rgbc * hi * keep, 0.0, 255.0);
                 gMetal = m0.a;
             }
+            // Port/mod map glow still obeys the material's atmospheric fog,
+            // texture holes, visibility, depth test and distance fade.
+            gGlow8 += ivec3(floor(vMapGlow * 255.0 * clamp(1.0 - cueWeight() / 4096.0, 0.0, 1.0)));
             ivec3 c8in = shade8(extra);
             if (uCheckMask != 0 && texelFetch(uDest, ivec2(gl_FragCoord.xy), 0).a >= 0.5) discard;
 
