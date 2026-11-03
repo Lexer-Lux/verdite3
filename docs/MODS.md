@@ -10,6 +10,27 @@ one in the game's Mods panel, which writes `mods.<id>.enabled=True` under
 `[RecompOne]` in `interface.ini`. A disabled mod loads silently, and so does an
 enabled one that does not compile, apart from a `[Mods]` line on the console.
 
+## Native bottom text for source mods
+
+`Kf3.NativeNotifications` shares the game's bottom font between source mods.
+`Hold(owner, glyphs)` displays a bounded native glyph string until `Cancel(owner)`;
+`Post(owner, glyphs, ticks=60)` and `PostText(owner, text, ticks=60)` queue finite
+notices. PostText accepts letters/spaces; use actual glyph bytes for item names.
+Each owner cancels only its own holds and queued/active notices. Vanilla queued
+or active banners take priority; held inspection text pauses finite notices.
+Queues/holds are capped at 32 each, strings at 24 glyphs, and finite durations at
+900 ticks. Successful load, new player and overlay transitions clear stale text.
+
+The API draws after native `80041D9C`, using native font `800261DC` and template
+`8007E570`. It reserves `12+40*glyphCount` bytes in the actual descriptor pointed
+to by `80199170` (cursor +8, limit +4), deferring if the arena is full. It restores
+CPU, scratch stack, brightness and GP current-primitive state; allocator and OT
+advances are kept. No new native message IDs or screen overlay are introduced.
+`tests/native_notifications` invokes that actual recompiled font and allocator
+without a host, checking packets, bounds, stack/CPU/GTE canaries, priority,
+owner cancellation, reset and world-tick duration. Gameplay behavior such as
+inspection names or poison notifications remains in separate user-library mods.
+
 ## Debug Tools (`mods/kf3debug`, `kf3.debug`)
 
 Built 2026-10-03 as a port of Verdite2's `mods/kf2debug`: the same structure,
