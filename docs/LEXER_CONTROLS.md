@@ -89,7 +89,13 @@ store, player-two/path isolation, alternate guest action masks, menu cancel/page
 actions, and run-mask restoration even on faults. It also covers independent
 distance/fade settings, raw fade-band persistence, discard and native row limits.
 
-The initial focused check passed before the additional menu-page assertion was
-added; the parent performs the final rebuild and rerun. Private in-game run-speed
-and interaction measurements, rendered setup/Input acceptance and physical-pad
-feel remain separate checks. No player installation or save was changed here.
+The focused check passed after the native rebuild, including the menu-page
+assertion. The actual setup binding page and Input profile controls were rendered
+offscreen from ImGui draw lists, using the runtime's Noto Sans font and theme.
+Inspected: first-run Classic at 1200x800, first-run Modern at 760x500 with 1.5 UI
+scale, rerun Custom at both sizes, and the Input buttons at 800x240 and 420x260
+with 1.5 scale. Controls and text fit without clipping in these views.
+
+Private in-game run-speed and interaction measurements, the complete installed
+Settings window and physical-pad feel remain separate checks. No player
+installation or save was changed here.
