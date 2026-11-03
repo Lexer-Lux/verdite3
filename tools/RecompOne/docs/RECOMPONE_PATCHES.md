@@ -6,6 +6,15 @@ repository it is `tools/RecompOne/docs/RECOMPONE_PATCHES.md`, and the diffs are
 `tools/RecompOne/patches/`. Every other `docs/` file named below (`RUNTIME.md`,
 `RENDERING.md`, `REMASTER.md` and the rest) is Verdite2's, where the work was done.
 
+Source-mod compilation amendment (2026-11-02): `ModCompiler` now resolves the
+available managed dependency graph of the current assemblies before making
+Roslyn metadata references. An API's dependencies need not have been JIT-loaded
+by the host first; headless startup exposed missing ImGui, MonoMod/Cecil and
+expression references. Unavailable optional dependencies are skipped. References
+are refreshed per compilation, so later overlays/mods cannot inherit a stale
+first-compilation snapshot. Single-file raw-metadata handling remains in place.
+The actual source loader was checked without a window or native patch startup.
+
 `patches/*.patch` are no longer replayed (the tree is this fork, taken into each
 game as a subtree — see Verdite2's `docs/RECOMPONE_FORK.md`), but they are still the record of what the port changed
 in the runtime and the recompiler and why, and the numbering is still how each
