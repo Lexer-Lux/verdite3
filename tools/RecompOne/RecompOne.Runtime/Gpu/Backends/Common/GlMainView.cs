@@ -473,7 +473,8 @@ public sealed partial class GlCore
                 if (_uwClipDq >= 0) _gl.Uniform2(_uwClipDq, (float)GteDepth.ProjDqa, GteDepth.ProjDqb / 4096f);
             }
         }
-        SetWorldView(r, v.CamX, v.CamY, v.CamZ, v.Tx, v.Ty, v.Tz, v.H, cx, cy, rt.Wide1x, rt.H, v.H, true, GlVram.Scale);
+        SetWorldView(r, v.CamX, v.CamY, v.CamZ, v.Tx, v.Ty, v.Tz, v.H, cx, cy, rt.Wide1x, rt.H, v.H, true, GlVram.Scale,
+                     mirror ? 1f : f.FogDepthScale);
         if (_uwModelGteC >= 0) _gl.Uniform2(_uwModelGteC, v.Cx, v.Cy);
         if (_uwNear >= 0) _gl.Uniform1(_uwNear, RetainedScene.MainNear);
         SendWorldLights(r, v.CamX, v.CamY, v.CamZ, v.Tx, v.Ty, v.Tz, cx, cy, v.H, false, 0f);

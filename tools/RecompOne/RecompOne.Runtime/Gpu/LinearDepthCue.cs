@@ -15,8 +15,12 @@ public static class LinearDepthCue
         return Math.Clamp(MathF.Truncate((MathF.Floor(depth / 4) - MathF.Floor(near / 4)) * 16384 / (far - near)), 0, 7951);
     }
     public const string Glsl = """
+        // Zero is the default for packet and other unscaled programs.
+        uniform float uFogDepthScale;
+        float scaledFogDepth(float depth) { return depth / max(uFogDepthScale, 1.0); }
         float linearDepthCue(float depth, vec2 pair) {
             if (pair.x >= 32000.0 || pair.x == pair.y) return 0.0;
+            depth = scaledFogDepth(depth);
             // Exact integer records must not use the driver's approximate float
             // reciprocal: an exact boundary can otherwise become one unit short.
             if (all(equal(pair, trunc(pair))) && all(lessThanEqual(abs(pair), vec2(65535.0))) && abs(depth) <= 65535.0) {

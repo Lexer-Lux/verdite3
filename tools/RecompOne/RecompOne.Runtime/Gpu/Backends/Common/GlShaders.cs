@@ -1791,7 +1791,7 @@ internal static class GlShaders
             int curve = int(cue.z + 0.5);
             if (uFogOn == 0 || curve == 0) return 1.0;
             if (curve == 5) return clamp(1.0 - linearDepthCue(z, cue.xy) / 4096.0, 0.0, 1.0);
-            float q = min(uCueH * 65536.0 / max(z, 1.0), 131071.0);
+            float q = min(uCueH * 65536.0 / max(scaledFogDepth(z), 1.0), 131071.0);
             float ir0 = clamp((cue.x * q + cue.y) / 4096.0, 0.0, 4096.0);
             float w = curve == 1 ? max(ir0 - 800.0, 0.0) * 2.0
                     : (ir0 < 2800.0 ? ir0 : 3.0 * ir0 - 5600.0);
@@ -1879,7 +1879,7 @@ internal static class GlShaders
             // shade8 puts it through the curve at every pixel.
             int curve = int(cue.z + 0.5);
             if (uFogOn != 0 && curve != 0 && uWorldPerPixel != 0) {
-                float q = min(uCueH * 65536.0 / max(z, 1.0), 131071.0);
+                float q = min(uCueH * 65536.0 / max(scaledFogDepth(z), 1.0), 131071.0);
                 vLit = color;
                 vFog = curve == 5 ? linearDepthCue(z, cue.xy) : (cue.x * q + cue.y) / 4096.0;
                 vCue = cue.xy;
@@ -2442,6 +2442,8 @@ internal static class GlShaders
         float gCueScale = 1.0;
         float gCueZ = 0.0;
 
+        //@linearDepthCue
+
         // The raw depth cue at the depth a level camera would see this fragment at.
         // MAC0 / 4096 is DQA * H/SZ / 4096 + DQB / 4096, so the part past DQB scales
         // as SZ does. A curve-4 corner holds a weight (EvenFog's blend): taken back
@@ -2449,7 +2451,7 @@ internal static class GlShaders
         float levelCue(float raw, uint curve) {
             if (curve == 4u) {
                 float wv = clamp(raw, 0.0, 4096.0);
-                float q = min(uClipH * 65536.0 / max(gCueZ, 1.0), 131071.0);
+                float q = min(uClipH * 65536.0 / max(scaledFogDepth(gCueZ), 1.0), 131071.0);
                 raw = wv <= 0.0 ? min(uClipDq.x * q / 4096.0 + uClipDq.y, 0.0)
                     : wv < 2800.0 ? wv : (wv + 5600.0) / 3.0;
             }
@@ -2457,7 +2459,6 @@ internal static class GlShaders
         }
 
         // The depth cue's weight, 0..4096, from the raw MAC0 through the curve.
-        //@linearDepthCue
         //@neighbourBlend
         //@distanceFade
 
@@ -2498,7 +2499,7 @@ internal static class GlShaders
             if (((vLight >> 24) & 7u) == 5u) return linearDepthCue(fogDepth() * 65536.0, vCue);
             if (uCueFromZ <= 0.0 || vDepth <= 0.0) return vFog;
             gFogAtDepth = uRadialFog != 0;
-            float q = min(uCueFromZ / max(fogDepth(), 1.0 / 65536.0), 131071.0);
+            float q = min(uCueFromZ * 65536.0 / max(scaledFogDepth(fogDepth() * 65536.0), 1.0), 131071.0);
             return (vCue.x * q + vCue.y) / 4096.0;
         }
 
@@ -2523,7 +2524,7 @@ internal static class GlShaders
 
         // The knee's keep at the frame's DQA, for a colour with no record.
         float frameKeep(float z) {
-            float q = min(uClipH * 65536.0 / max(z, 1.0), 131071.0);
+            float q = min(uClipH * 65536.0 / max(scaledFogDepth(z), 1.0), 131071.0);
             float ir0 = clamp(uClipDq.x * q / 4096.0 + uClipDq.y, 0.0, 4096.0);
             return clamp(1.0 - (ir0 < 2800.0 ? ir0 : 3.0 * ir0 - 5600.0) / 4096.0, 0.0, 1.0);
         }

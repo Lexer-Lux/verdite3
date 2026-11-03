@@ -22,7 +22,7 @@ public sealed partial class GlCore
     readonly int[] _worldStaticCount = new int[5];
     int _worldVerts;
     int _uwR, _uwCam, _uwT, _uwH, _uwC, _uwFb, _uwNear, _uwCueH, _uwFogOn, _uwMirror, _uwPlaneY, _uwPlaneBias;
-    int _uwScale, _uwAniso, _uwBlend, _uwBlendOpaque, _uwFluidN;
+    int _uwScale, _uwAniso, _uwBlend, _uwBlendOpaque, _uwFluidN, _uwFogDepthScale;
     int _uwAtmosOn, _uwAtmosColour, _uwAtmosShape, _uwAtmosSkip;
     int _uwMaskOn, _uwMaskPlane, _uwMaskTol, _uwMaskCentre, _uwMaskH, _uwMaskSize;
     readonly int[] _uwFluidRect = new int[8], _uwFluidOff = new int[8];
@@ -81,6 +81,7 @@ public sealed partial class GlCore
         int L(string n) => _gl.GetUniformLocation(_progWorld, n);
         _uwR = L("uR"); _uwCam = L("uCam"); _uwT = L("uT"); _uwH = L("uH"); _uwC = L("uC"); _uwFb = L("uFb");
         _uwNear = L("uNear"); _uwCueH = L("uCueH"); _uwFogOn = L("uFogOn"); _uwMirror = L("uMirror");
+        _uwFogDepthScale = L("uFogDepthScale");
         _uwPlaneY = L("uPlaneY"); _uwPlaneBias = L("uPlaneBias");
         _uwScale = L("uScale"); _uwAniso = L("uAniso"); _uwBlend = L("uBlend"); _uwBlendOpaque = L("uBlendOpaque");
         _uwFluidN = L("uFluidN");
@@ -386,7 +387,8 @@ public sealed partial class GlCore
     /// <summary>A camera for the world program: rotation, world position,
     /// translation, projection and target size.</summary>
     void SetWorldView(ReadOnlySpan<float> r, double camX, double camY, double camZ, float tx, float ty, float tz,
-                      float h, float cx, float cy, float fbW, float fbH, float cueH, bool fog, int scale)
+                      float h, float cx, float cy, float fbW, float fbH, float cueH, bool fog, int scale,
+                      float fogScale = 1f)
     {
         // GLSL reads a mat3 column-major; ask for the transpose of the row-major R.
         if (_uwR >= 0) _gl.UniformMatrix3(_uwR, 1, true, r);
@@ -398,6 +400,7 @@ public sealed partial class GlCore
         if (_uwNear >= 0) _gl.Uniform1(_uwNear, 16f);
         if (_uwCueH >= 0) _gl.Uniform1(_uwCueH, Math.Max(1f, cueH));
         if (_uwFogOn >= 0) _gl.Uniform1(_uwFogOn, fog ? 1 : 0);
+        if (_uwFogDepthScale >= 0) _gl.Uniform1(_uwFogDepthScale, fogScale);
         if (_uwScale >= 0) _gl.Uniform1(_uwScale, scale);
     }
 

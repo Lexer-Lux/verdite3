@@ -540,6 +540,9 @@ public static class RetainedScene
         /// <summary>0089. The main view's <see cref="DistanceFade"/>: its edge and band
         /// in world units from the camera's X and Z, and its depth limit; all 0 is none.</summary>
         public float FadeEdge, FadeBand, FadeDepth;
+        /// <summary>Main-view fog samples depth divided by this scale. Geometry,
+        /// depth testing and distance fade retain their physical distances.</summary>
+        public float FogDepthScale = 1f;
         /// <summary>0085. The swell this frame was walked with: per wave, its
         /// wavenumber along X and Z, its height and its phase; and whether it is on.</summary>
         public readonly float[] Swell = new float[12];
@@ -634,6 +637,7 @@ public static class RetainedScene
         Array.Clear(f.MainHalves);
         Array.Clear(f.MainHalfGlow);
         f.FadeEdge = f.FadeBand = f.FadeDepth = 0f;
+        f.FogDepthScale = 1f;
     }
 
     // ---- 0085: the mirror ----------------------------------------------------------
@@ -733,6 +737,16 @@ public static class RetainedScene
         var f = Current;
         if (f.Serial != _serial) return;
         f.FadeEdge = edge; f.FadeBand = band; f.FadeDepth = depth;
+    }
+
+    /// <summary>Extend only the current main view's atmospheric fog distances.
+    /// One preserves the native cue; invalid or shorter scales also use one.
+    /// Authored near/far records and their disabled-fog sentinel are unchanged.</summary>
+    public static void SetFogDepthScale(float scale)
+    {
+        var f = Current;
+        if (f.Serial != _serial) return;
+        f.FogDepthScale = float.IsFinite(scale) ? Math.Max(1f, scale) : 1f;
     }
 
     /// <summary>One model's triangles, in world space, to the current frame.</summary>
