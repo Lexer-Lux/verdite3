@@ -35,6 +35,17 @@ try
     Check(PortSettings.StickTurn.Default == 3 && PortSettings.StickLook.Default == 3 &&
           PortSettings.EnemyTurnSpeed.Default == 3 && PortSettings.MouseTurn.Default == 1,
         "native setting defaults agree; mouse sensitivity is unchanged");
+    Check(RenderDistance.FogScale(30, 13) == 30f / 13 && RenderDistance.FogScale(15, 13) == 15f / 13 &&
+          RenderDistance.FogScale(0, 13) == 1 && RenderDistance.FogScale(8, 13) == 1 &&
+          RenderDistance.FogScale(float.NaN, 13) == 1 && RenderDistance.FogScale(30, 0) == 1,
+        "only extended view reach scales fog, without invalid radius division");
+    RecompOne.Runtime.RetainedScene.BeginFrame(default);
+    RecompOne.Runtime.RetainedScene.SetFogDepthScale(30f / 13);
+    Check(RecompOne.Runtime.RetainedScene.Find(RecompOne.Runtime.RetainedScene.Serial)!.FogDepthScale == 30f / 13,
+        "main frame captures its fog scale");
+    RecompOne.Runtime.RetainedScene.BeginFrame(default);
+    Check(RecompOne.Runtime.RetainedScene.Find(RecompOne.Runtime.RetainedScene.Serial)!.FogDepthScale == 1,
+        "new frames cannot retain a prior view's fog scaling");
     using (var specJson = JsonDocument.Parse(File.ReadAllText(config)))
     {
         var defaults = specJson.RootElement.GetProperty("defaults");

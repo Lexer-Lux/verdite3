@@ -54,6 +54,21 @@ models. The sky and arm are excluded. The packet renderer and reflections keep
 the game's reach. Creatures retain their own activation/spawn-distance limits.
 Fog can still obscure geometry, independent of how far it is submitted.
 
+The 2026-11-03 visibility investigation found the installed retained renderer
+already submitted terrain beyond15 tiles, but the authored atmospheric cue made
+it black. Paired GPU snapshots at one camera recorded7,735 terrain pixels beyond
+15 tiles with no visible colour; bypassing only the GPU cue lit6,844 of them.
+The15-tile comparison contained only130 such pixels. This is diagnostic evidence,
+not an installed fix claim.
+
+The correction scales only the current retained main view's fog sampling depth
+by `max(1, requested tiles / native radius)`. It leaves authored near/far words,
+the disabled-fog sentinel, geometry coordinates, depth testing and distance fade
+unchanged. Native reach and packet/reflection fog keep scale1. The existing
+30-tile maximum and65,024-unit depth guard remain. Native controls/distance tests,
+runtime compilation and22 shader stages/15 links pass; the new shipped build
+still needs matched-camera, restart and rendered-UI verification.
+
 ## Modern menu choice
 
 Lexer explicitly chose physical Triangle for inventory and Options/Start for the

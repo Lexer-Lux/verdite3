@@ -63,6 +63,11 @@ public static class RenderDistance
     public static void SetTiles(float tiles) => Tiles = float.IsFinite(tiles) && tiles > 0 ? Math.Clamp(tiles, 1, MaxTiles) : 0;
     public static void SetFade(float tiles) => FadeTiles = float.IsFinite(tiles) && tiles > 0 ? Math.Clamp(tiles, 0.25f, MaxFade) : 0;
 
+    /// <summary>The authored cue follows the requested geometry reach. Scale depth,
+    /// not the native near/far words: values >=32000 are a disabled-fog sentinel.</summary>
+    public static float FogScale(float tiles, int radius) =>
+        float.IsFinite(tiles) && radius > 0 ? Math.Max(1f, tiles / radius) : 1f;
+
     static bool _probe, _models = true;
     static long _reportAt, _frames, _added, _addedMax, _gameMiss, _overlap, _deep, _checked, _walked;
     static float _maxDepth, _edge, _gameEdge;
@@ -112,6 +117,7 @@ public static class RenderDistance
         _gameEdge = game; _edge = 0;
         if (!Enabled || !RetainedMap.Ready) return;
         float far = Tiles * Tile;
+        RetainedScene.SetFogDepthScale(FogScale(Tiles, radius));
         bool extend = far > game;
         float edge = extend ? far : game;
         if (extend) AddHalves(m, v, t5, edge);
@@ -214,7 +220,7 @@ public static class RenderDistance
 
     /// <summary>The shell's: cumulative counts as JSON members, for a tour to difference.</summary>
     public static string Counters() => FormattableString.Invariant(
-        $"\"rdTiles\":{Tiles},\"rdFade\":{FadeTiles},\"rdRadius\":{_radius},\"rdT5\":{_t5},\"rdEdge\":{_edge:0},\"rdGameEdge\":{_gameEdge:0},") +
+        $"\"rdTiles\":{Tiles},\"rdFade\":{FadeTiles},\"rdRadius\":{_radius},\"rdT5\":{_t5},\"rdEdge\":{_edge:0},\"rdGameEdge\":{_gameEdge:0},\"rdFogScale\":{RetainedScene.Find(RetainedScene.Serial)?.FogDepthScale ?? 1f},") +
         FormattableString.Invariant($"\"rdFrames\":{_allFrames},\"rdAdded\":{_allAdded},\"rdMaxDepth\":{_allDepth:0},\"rdChecked\":{_allChecked},") +
         FormattableString.Invariant($"\"rdWalked\":{_allWalked},\"rdOutsideReach\":{_gameMiss},\"rdOverlap\":{_overlap},") +
         FormattableString.Invariant($"\"rdModels\":{_allModels},\"rdRefused\":{_allRefused},\"rdCreaturesFaded\":{_allCreaturesFaded}");
