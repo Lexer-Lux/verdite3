@@ -1198,6 +1198,7 @@ public static class HostWindow
         var imgui = Profiler.Begin(Profiler.ImGuiRender);
         _imgui.Render();
         Profiler.End(imgui);
+        ScreenHud.Render(gl, fbDef.X, fbDef.Y);
     }
 
     private static void DrawDockspace()
