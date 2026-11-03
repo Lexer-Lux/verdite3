@@ -1,5 +1,10 @@
 # Environment variables
 
+`KF3_HEADLESS=1` runs simulation with no native window, GL context or audio.
+Software triangles are skipped unless `KF3_HEADLESS_RASTER=1`. Use a private
+working directory with isolated settings and cards; these flags do not protect
+player data by themselves and do not verify GPU appearance.
+
 Every `KF3_*` switch the port reads, in one list, with what each does and its
 default. This fills in as diagnostics are added, the way Verdite2's
 `docs/ENV_VARS.md` did. Add an entry here when a switch is added to
