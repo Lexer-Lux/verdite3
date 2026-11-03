@@ -1,9 +1,12 @@
 using System.Reflection;
 using RecompOne.Runtime;
+using RecompOne.Runtime.Config;
 using RecompOne.Runtime.Context;
 using RecompOne.Runtime.Events;
 using RecompOne.Runtime.Memory;
 using RecompOne.Runtime.Modding;
+using RecompOne.Runtime.Host;
+using Silk.NET.Input;
 
 namespace Kf3;
 
@@ -70,18 +73,35 @@ public static class SeparateRun
         }
         else if (caller == MenuReadReturn)
         {
-            // The same shoulder actions turn pages in the game's menu loops.
-            // Do this only at the measured menu reader, not item presentations.
-            ushort menu = (ushort)(pressed & ~(0x0080 | 0x0010));
-            if ((pressed & 0x0080) != 0) menu |= 0x0008;
-            if ((pressed & 0x0010) != 0) menu |= 0x0004;
-            e.Buttons = (ushort)~menu;
-            // Circle is Back while a chooser reads the pad, not Run.
-            if ((pressed & RunMask) != 0)
-            {
-                ushort cancel = e.Memory.ReadU16(CancelMask);
-                e.Buttons &= (ushort)~(cancel != 0 ? cancel : (ushort)0x0020);
-            }
+            e.Buttons = (ushort)~MenuButtons(pressed, PadReadContext.GuideMenu(e), ConfigManager.Game,
+                button => HostWindow.IsPadButtonDown(button),
+                key => Enum.TryParse<Key>(key, out var parsed) && HostWindow.IsKeyDown(parsed),
+                e.Memory.ReadU16(CancelMask));
         }
+    }
+
+    /// <summary>Keep native Guide's Triangle in its lists, without treating a
+    /// keyboard inventory key or a customized pad binding as physical Triangle.</summary>
+    public static ushort MenuButtons(ushort pressed, bool guide, GameConfig config,
+        Func<int, bool> padDown, Func<string, bool> keyDown, ushort cancel)
+    {
+        var pad = config.PadFor(0); // Includes the selected analog binding table.
+        bool held(int[] bindings, int except = -1) => Array.Exists(bindings, b => b != except && padDown(b));
+        bool padGuide = guide && (pressed & 0x20) != 0 && Array.IndexOf(pad.Circle, 3) >= 0 && padDown(3);
+        bool nativePadGuide = guide && (pressed & 0x10) != 0 && Array.IndexOf(pad.Triangle, 3) >= 0 && padDown(3);
+        bool keyGuide = guide && (pressed & 0x10) != 0 && keyDown(config.Keys.Triangle);
+        ushort actions = pressed;
+        if (padGuide && !keyDown(config.Keys.Circle) && !held(pad.Circle, 3)) actions &= 0xFFDF;
+        if ((keyGuide || nativePadGuide) && !held(pad.Triangle, nativePadGuide ? 3 : -1)) actions &= 0xFFEF;
+
+        // Attack/cast shoulders keep their native menu page/model actions.
+        ushort menu = (ushort)(actions & ~(0x0080 | 0x0010));
+        if ((actions & 0x0080) != 0) menu |= 0x0008;
+        if ((actions & 0x0010) != 0) menu |= 0x0004;
+        if (padGuide || nativePadGuide || keyGuide) menu |= 0x0010;
+        // In the viewer, the same Triangle mapping prevents the opening hold
+        // from becoming Cancel. Native Circle/Back and keyboard Tab still close it.
+        if ((pressed & RunMask) != 0) menu |= cancel != 0 ? cancel : (ushort)0x0020;
+        return menu;
     }
 }

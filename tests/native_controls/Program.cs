@@ -152,6 +152,53 @@ try
     read.Buttons = unchecked((ushort)~(0x80 | 0x10));
     SeparateRun.OnPadRead(read);
     Check((ushort)~read.Buttons == (0x4 | 0x8), "combat shoulders retain native menu page actions");
+    var guideConfig = new GameConfig();
+    guideConfig.Pad.Circle = [3]; guideConfig.Pad.Triangle = [9, 100];
+    guideConfig.Keys.Circle = "Tab"; guideConfig.Keys.Triangle = "Q";
+    var guidePad = new HashSet<int>(); var guideKeys = new HashSet<string>();
+    ushort GuideButtons(ushort buttons, bool guide = true) => SeparateRun.MenuButtons(buttons, guide,
+        guideConfig, guidePad.Contains, guideKeys.Contains, 0x20);
+    mem.WriteU32(read.Context.SP + 0x28, 0x80022384);
+    foreach (uint owner in new uint[] { 0x8001AC18, 0x8001C624, 0x8001CF34, 0x8001D308,
+        0x8001D6AC, 0x8001E074, 0x8001E344, 0x8002149C, 0x800218D0 })
+    {
+        mem.WriteU32(read.Context.SP + 0x6C, owner);
+        Check(PadReadContext.GuideMenu(read), "measured native list frame identifies Guide owner");
+    }
+    mem.WriteU32(read.Context.SP + 0x6C, 0x8001C95C);
+    Check(!PadReadContext.GuideMenu(read), "equipment slot chooser without native Guide is excluded");
+    mem.WriteU32(read.Context.SP + 0x28, 0x800221FC);
+    Check(!PadReadContext.GuideMenu(read), "top menu inventory exit is not Guide");
+    mem.WriteU32(read.Context.SP + 0x28, 0x80025154);
+    Check(PadReadContext.GuideMenu(read), "native Guide viewer preserves Triangle instead of Cancel");
+    guidePad.Add(3);
+    for (int held = 0; held < 30; held++)
+        Check(GuideButtons(0x20) == 0x10, "Modern Triangle opens Guide and its opening hold cannot close it");
+    Check(GuideButtons(0x20, false) == 0x20, "Modern Triangle still exits top inventory menu");
+    guidePad.Clear(); guideKeys.Add("Tab");
+    Check(GuideButtons(0x20) == 0x20, "keyboard Tab remains Back, never Guide");
+    guideKeys.Clear(); guideKeys.Add("Q");
+    Check(GuideButtons(0x10) == 0x10, "configured keyboard Triangle opens native Guide");
+    guideKeys.Clear(); guidePad.Add(9);
+    Check(GuideButtons(0x10) == 4, "physical casting shoulder retains menu page action");
+    guidePad.Clear(); guideConfig.Keys.Triangle = "R"; guideKeys.Add("R");
+    Check(GuideButtons(0x10) == 0x10, "custom keyboard Guide binding is read live");
+    guideKeys.Clear(); guideConfig.Pad.Circle = [4]; guidePad.Add(4);
+    Check(GuideButtons(0x20) == 0x20, "custom inventory pad button stays Back rather than assumed Triangle");
+    guideConfig.Pad.Triangle = [3]; guidePad.Clear(); guidePad.Add(3);
+    Check(GuideButtons(0x10) == 0x10, "custom native Triangle Guide binding is not mistaken for casting shoulder");
+    guideConfig.Pad.Circle = [3]; guideConfig.PadKind = PadKind.Analog;
+    guideConfig.PadAnalog.Circle = [4]; guidePad.Clear(); guidePad.Add(3);
+    Check(GuideButtons(0x20) == 0x20, "inactive digital bindings cannot override custom analog bindings");
+    guideConfig.PadAnalog.Circle = [3];
+    Check(GuideButtons(0x20) == 0x10, "active analog Triangle binding opens Guide");
+    guidePad.Clear();
+    Check((GuideButtons(SeparateRun.RunMask) & 0x20) != 0, "native Back closes Guide through Run binding");
+    Check(GuideButtons(0) == 0, "release does not synthesize a second Guide action");
+    SeparateRun.Enabled = false; read.Buttons = unchecked((ushort)~0x10);
+    SeparateRun.OnPadRead(read);
+    Check((ushort)~read.Buttons == 0x10, "Classic Triangle remains native Guide without Modern translation");
+    SeparateRun.Enabled = true;
     mem.WriteU32(read.Context.SP + 0x10, 0x80020000);
     ushort unrelated = unchecked((ushort)~(0x80 | 0x10 | SeparateRun.RunMask));
     read.Buttons = unrelated;
