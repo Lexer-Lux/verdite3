@@ -10,6 +10,19 @@ one in the game's Mods panel, which writes `mods.<id>.enabled=True` under
 `[RecompOne]` in `interface.ini`. A disabled mod loads silently, and so does an
 enabled one that does not compile, apart from a `[Mods]` line on the console.
 
+## Settings controls for source mods
+
+`RecompOne.Runtime.Host.Window.ModSettings.SliderInt` and `.SliderFloat` put a
+wrapped label above a full-width native ImGui slider. Both accept the usual
+minimum/maximum, format and flags (default `AlwaysClamp`), with optional `help`
+beside the label. They keep labels and their bounded controls readable when the
+Mods popup is narrower than its preferred size. Values and persistence remain
+the mod's responsibility; the helpers add no settings store.
+
+The actual ModsPopup and mod DrawSettings routines were rendered without Host
+or audio at1280×720/scale1 and640×480/scale1.5. Smaller views retain vertical
+scrolling; the lower Poison/Hit controls and Sprint tooltip were viewed too.
+
 ## Native bottom text for source mods
 
 `Kf3.NativeNotifications` shares the game's bottom font between source mods.
