@@ -29,6 +29,7 @@
       (docs/PACKAGING.md).
     -->
     <ItemGroup>
+        <Compile Remove="tests/**" />
         <Compile Remove="tools/**;mods/**;mcp/**;dist/**;scratch/**;Verdite3.Launcher/**;packaging/**" />
         <EmbeddedResource Remove="tools/**;mods/**;mcp/**;dist/**;scratch/**;Verdite3.Launcher/**;packaging/**" />
         <None Remove="tools/**;mods/**;mcp/**;dist/**;scratch/**;Verdite3.Launcher/**;packaging/**" />

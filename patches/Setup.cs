@@ -50,6 +50,16 @@ public static class Setup
     /// <summary>Asked for and not yet closed: the settings page waits on this.</summary>
     public static bool Busy => _opening || (_popup?.IsOpen ?? false);
 
+    /// <summary>Actual bindings decide Classic, Modern or Custom; no profile marker.</summary>
+    public static int ControlProfile => _spec?.Pages.FirstOrDefault(p => p.Id == "bindings") is { } page
+        ? Onboarding.Detect(_spec, page).Option : -1;
+
+    public static void ApplyControlProfile(bool modern)
+    {
+        if (_spec?.Pages.FirstOrDefault(p => p.Id == "bindings") is not { } page) return;
+        _last = Onboarding.Apply(_spec, [page.Options[modern ? 1 : 0].Set], "KF3");
+    }
+
     /// <summary>
     /// The shell's <c>setup</c>, from the game thread:
     ///   setup                       each group's tier now (-1 is set by hand) and the last apply
@@ -161,6 +171,7 @@ public static class Setup
 
         foreach (var key in keys)
         {
+            if (BindingStorage.IsKey(key)) continue; // native storage validates and applies these itself
             var port = PortSettings.All.FirstOrDefault(p => string.Equals(p.Key, key, StringComparison.OrdinalIgnoreCase));
             bool window = Window.TryGetValue(key, out var w);
             if (!window && (port is null || port.AtBoot))

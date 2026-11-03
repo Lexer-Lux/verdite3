@@ -42,6 +42,7 @@ if (channels.Count > 0)
 // docs/INPUT.md.
 Kf3.KeyLayout.Configure();
 Kf3.KeyLayout.Install();
+Kf3.SeparateRun.Install();
 
 // The top menu bar starts hidden whatever the last session saved; F1 shows it.
 // Once, at the first ready: a hard reset raises the event again.

@@ -156,7 +156,14 @@ public static class KeyLayout
 
     static readonly Action<PadReadEvent> _escape = e =>
     {
-        if (e.Port != 0 || !_escHeld || !IsApplied()) return;
+        if (e.Port != 0) return;
+        bool wasd = RecompOne.Runtime.Config.ConfigManager.Game.Keys is { Up: "W", Down: "S", L1: "A", R1: "D" };
+        if (wasd && !IsApplied())
+        {
+            if (RecompOne.Runtime.Host.HostWindow.IsKeyDown(Key.Up)) e.Buttons &= unchecked((ushort)~0x1000);
+            if (RecompOne.Runtime.Host.HostWindow.IsKeyDown(Key.Down)) e.Buttons &= unchecked((ushort)~0x4000);
+        }
+        if (!_escHeld || !wasd) return;
         // Active low, the two button bytes swapped from Controller's layout.
         ushort bit = Controller.Circle;
         e.Buttons &= (ushort)~(ushort)((bit >> 8) | (bit << 8));
