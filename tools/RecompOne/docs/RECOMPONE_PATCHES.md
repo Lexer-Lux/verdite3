@@ -15,6 +15,14 @@ are refreshed per compilation, so later overlays/mods cannot inherit a stale
 first-compilation snapshot. Single-file raw-metadata handling remains in place.
 The actual source loader was checked without a window or native patch startup.
 
+Source-mod settings amendment (2026-11-03): `Host.Window.ModSettings` provides
+integer/float sliders with wrapped labels above full-width bounded controls.
+ImGui's default label-on-the-right layout clips long mod settings at small
+window sizes or larger UI scales. The shared helpers retain normal value/format
+and slider flags, with IDs scoped by label; separate mods use the same layout.
+Actual ModsPopup draw data and fonts were rendered without a host or audio for
+small and large windows; no game behavior or settings storage lives here.
+
 `patches/*.patch` are no longer replayed (the tree is this fork, taken into each
 game as a subtree — see Verdite2's `docs/RECOMPONE_FORK.md`), but they are still the record of what the port changed
 in the runtime and the recompiler and why, and the numbering is still how each
