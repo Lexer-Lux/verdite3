@@ -31,6 +31,30 @@ without a host, checking packets, bounds, stack/CPU/GTE canaries, priority,
 owner cancellation, reset and world-tick duration. Gameplay behavior such as
 inspection names or poison notifications remains in separate user-library mods.
 
+## Native save identity for source mods
+
+`Kf3.NativeSaves.LastSuccessful` observes successful native load/save operations,
+including their actual BIOS filename and logical file1..15 on either card. It
+runs independently of optional mods, so enabling a mod during play does not lose
+the last observed save. Failed I/O preserves the previous successful identity;
+an ordinary area change preserves it, and a new playthrough clears it.
+
+The immutable identity contains the card index, logical file, native filename,
+actual card object's file path and that card object. `IsCurrentCardAvailable`
+requires the same enabled card object and path. A pending settings-path change
+does not become the identity of an already-open card. The observer does not read
+or write files or choose recovery behavior; source mods own those decisions.
+Controller labels for their prompts come from public
+`Verdite.Core.BindingTable.PadLabel`, the binding editor's existing label table.
+
+`python tests/native_saves/test_native_saves.py --game-build <compiled-game-dir>
+--dotnet <dotnet>` checks the compiled observer with actual native save/load and
+BIOS routines on temporary synthetic cards. It covers the saver choosing file1
+from a requested15, cardB file15, failed I/O, card replacement/disable, pending
+settings changes, late consumers and resets. CD/resource pumps and the save-icon
+readback are fixture boundaries. No host, audio, source mod or player card is
+used; complete world recovery and any mod's prompt need separate checks.
+
 ## Debug Tools (`mods/kf3debug`, `kf3.debug`)
 
 Built 2026-10-03 as a port of Verdite2's `mods/kf2debug`: the same structure,

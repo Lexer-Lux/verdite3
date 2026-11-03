@@ -384,6 +384,7 @@ Kf3.Setup.Install();
 // kf3.* keys (docs/SETTINGS.md). Last, so its boot check follows every start-up.
 Kf3.PortSettings.Install();
 Kf3.NativeNotifications.Install();
+Kf3.NativeSaves.Install();
 
 // Compile the recompiled code ahead of the game running it. QuickJit is off (a
 // tier-up loses a MonoMod detour), so every function is compiled by the full JIT
