@@ -15,7 +15,7 @@ namespace Kf3;
 ///     KF3_ANALOG_MOVE_ENABLE=1  left stick walks and strafes
 ///     KF3_TANK=1                3D (one-stick) controls: the left stick walks and turns,
 ///                               the right stick is not read
-///     KF3_ANALOG_TURN/PITCH/MOVE=1.0            sensitivities
+///     KF3_ANALOG_TURN/PITCH/MOVE=3.0/3.0/1.0    sensitivities
 ///     KF3_ANALOG_DEADZONE/MOVEDEADZONE=0.15     deadzones
 ///     KF3_ANALOG_CURVE/MOVECURVE=1.35/1.0       response curves
 ///     KF3_ANALOG_ACCEL=1 ACCELMAX=2.2 ACCELTIME=0.5   the look ramp
@@ -195,9 +195,8 @@ public static class Analog
     // stays fine -- the ramp only starts past LookAccelThreshold -- and it falls
     // away three times faster than it builds, so easing off is immediate.
     //
-    // Off by default: it turns the view past the D-pad's rate, up to 2.2 times it,
-    // and the game's combat is built on how fast the player can turn. The default
-    // stick is the original's speed; faster is something a player asks for.
+    // Off by default: sensitivity already supplies the requested fixed look
+    // speed. A held-stick ramp is a separate preference.
     public static bool LookAccel = false;
     public static float LookAccelMax = 2.2f;
     public static float LookAccelTime = 0.5f;
@@ -218,9 +217,12 @@ public static class Analog
     // push corrects finely and a full one still turns at the full rate.
     const float TankDeadzone = 0.3f;
     const float TankTurnCurve = 2f;
-    // 1.0 is the D-pad's rate and L2/R2's at full deflection (see Ramp).
-    public static float TurnSens = 1.0f;
-    public static float PitchSens = 1.0f;
+    // 1.0 is the D-pad's rate and L2/R2's at full deflection. The requested
+    // default is linear x3; keep the baseline explicit for enemy compensation.
+    public const float OriginalLookSensitivity = 1f;
+    public const float DefaultLookSensitivity = 3f;
+    public static float TurnSens = DefaultLookSensitivity;
+    public static float PitchSens = DefaultLookSensitivity;
     public static float MoveSens = 1.0f;
 
     public static bool InvertTurn;
@@ -247,7 +249,7 @@ public static class Analog
     // The right stick eased toward what it asks, by the game's own step (see Ramp).
     // Off, it is direct: the turn and look are the stick's position at once, still
     // capped at the D-pad's rate and L2/R2's, and a released stick stops dead, so
-    // CameraInstantStop says nothing. The speed is the original's either way; only
+    // CameraInstantStop says nothing. Sensitivity sets the speed either way; only
     // the drag a held button has, four or five ticks in and out, is gone. 2D only:
     // 3D's left-stick turn is the D-pad's, ease and all.
     //
@@ -272,13 +274,6 @@ public static class Analog
     // stick and 2D's right stick never turn at once.
     static float _rampTurn, _rampPitch;
     static bool _rampTurnLive, _rampPitchLive;
-
-    /// <summary>Raised whenever the shipped defaults change in a way a saved value
-    /// should not survive. 2: the stick turns at the D-pad's rate, so look
-    /// acceleration and the instant stop went off and sensitivities above 1.0 were
-    /// put back to 1.0, once. 3: 2D's stick is direct, so a saved ease went off.</summary>
-    const int DefaultsVersion = 3;
-    const string DefaultsKey = "kf3.analog.defaults";
 
     /// <summary>Keys a KF3_ANALOG* variable set, which the saved settings must
     /// not overwrite -- the same precedence the other patches keep.</summary>
@@ -362,7 +357,6 @@ public static class Analog
         // happens inside HostWindow.Initialize -- after Program.cs called Configure.
         Event.AddListener<RuntimeReadyEvent>(_ =>
         {
-            MigrateDefaults();
             Saved(OnKey, ref Enabled);
             Saved(LookKey, ref AnalogLook);
             Saved(MoveKey, ref AnalogMove);
@@ -386,39 +380,6 @@ public static class Analog
         });
 
         HookAttach.OnOverlayLoad("analog", Attach);
-    }
-
-    /// <summary>
-    /// Bring a saved config to the current defaults once (<see cref="DefaultsVersion"/>):
-    /// a value saved under the old ones was chosen against a stick that already
-    /// turned faster than the D-pad, so it is reset, not kept. Run before the saved
-    /// values are read; a variable set in the environment still wins, as it never
-    /// touched the store. Booleans are kept as 1/0 here (AnalogPage.Set).
-    /// </summary>
-    static void MigrateDefaults()
-    {
-        var view = RecompOne.Runtime.Runtime.View;
-        int from = view.GetInt(DefaultsKey, 0);
-        if (from >= DefaultsVersion) return;
-
-        int reset = 0;
-        if (from < 2)
-        {
-            if (view.Has(AccelKey) && view.GetInt(AccelKey, 0) != 0) { view.SetInt(AccelKey, 0); reset++; }
-            if (view.Has(StopKey) && view.GetInt(StopKey, 0) != 0) { view.SetInt(StopKey, 0); reset++; }
-            if (view.Has(TurnSensKey) && view.GetFloat(TurnSensKey, 1f) > 1f) { view.SetFloat(TurnSensKey, 1f); reset++; }
-            if (view.Has(PitchSensKey) && view.GetFloat(PitchSensKey, 1f) > 1f) { view.SetFloat(PitchSensKey, 1f); reset++; }
-        }
-        bool eased = view.Has(EaseKey) && view.GetInt(EaseKey, 0) != 0;
-        if (eased) view.SetInt(EaseKey, 0);
-        view.SetInt(DefaultsKey, DefaultsVersion);
-        RecompOne.Runtime.Runtime.SaveView();
-        if (reset > 0)
-            Console.WriteLine($"[KF3] analog: the stick now turns at the D-pad's rate; {reset} saved " +
-                              "setting(s) that turned it faster were reset (Input ▸ Gamepad to change them back)");
-        if (eased)
-            Console.WriteLine("[KF3] analog: 2D's stick no longer eases in and out; the saved ease was " +
-                              "turned off (Input ▸ Gamepad to turn it back on)");
     }
 
     static bool Attach()

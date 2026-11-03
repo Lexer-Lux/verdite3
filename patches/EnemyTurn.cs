@@ -39,8 +39,8 @@ namespace Kf3;
 /// this game's creatures have not been watched. See "Enemies turn faster" in
 /// docs/GAME_INTERNALS.md.
 ///
-///     KF3_ENEMYTURN=1..8        the multiplier (Gameplay ▸ Enemy turn speed)
-///     KF3_ENEMYTURN_TRACK=0     no turning at the player while standing (on)
+///     KF3_ENEMYTURN=1..8        the multiplier (default 3, Gameplay ▸ Enemy turn speed)
+///     KF3_ENEMYTURN_TRACK=1     extra turning at the player while standing (off)
 ///     KF3_ENEMYTURN_ALL=1       scale every turn, wandering too -- comparison only
 ///     KF3_ENEMYTURN_PROBE=1     a census of the turn's callers every 5 s
 ///     KF3_ENEMYTURN_PROBE=2     also a line a tick for each awake creature in reach
@@ -65,19 +65,20 @@ public static class EnemyTurn
 
     public const string Key = "kf3.enemyturn";
     public const float Min = 1f, Max = 8f;
+    public const float DefaultMultiplier = Analog.DefaultLookSensitivity / Analog.OriginalLookSensitivity;
     public const string TrackKey = "kf3.enemyturn.track";
 
     /// <summary>The top speed of a turn made while standing, before the multiplier;
     /// Verdite2's.</summary>
     const int TrackSpeed = 16;
 
-    /// <summary>1 is the game's own turn.</summary>
-    public static float Multiplier { get; private set; } = 1f;
+    /// <summary>Match the default stick's linear speed increase. 1 is native.</summary>
+    public static float Multiplier { get; private set; } = DefaultMultiplier;
 
     public static void SetMultiplier(float k) => Multiplier = Math.Clamp(k, Min, Max);
 
     /// <summary>Turn a standing creature at the player each tick. Inert at x1.</summary>
-    public static bool Track { get; private set; } = true;
+    public static bool Track { get; private set; }
 
     public static void SetTrack(bool on) => Track = on;
 

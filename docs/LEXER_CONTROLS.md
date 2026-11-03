@@ -65,6 +65,30 @@ one in Modern. The diagnostic `KF3_SEPARATERUN=0|1` overrides it for a run.
 
 ## One binding store
 
+The requested native gamepad look default is3 on both axes (2026-11-03).
+The upstream scale was1, multiplying the game's angle units linearly: standing
+yaw40/tick, walking yaw32/tick and pitch32/tick. The new default gives120,96
+and96 respectively at full deflection, below the unchanged four-times cap.
+The world ticks at15Hz and a circle is4096 units; standing yaw therefore changes
+from52.734375 to158.203125 degrees/second. Deadzone, curve, acceleration toggle,
+movement, mouse and gyro scaling are unchanged.
+
+Enemy turn compensation uses the existing native-facing multiplier3: maximum
+angular speed times3 and acceleration times9. Each call retains its own original
+rule speed and type acceleration; this is not a universal replacement speed.
+The existing native turn routine still handles velocity, clamping and overshoot.
+Only turns aimed at the player are scaled. Standing tracking defaults off so
+faster rotation does not introduce new AI turns; an explicitly saved tracking
+choice remains effective. No movement, attack rate, damage or wander change.
+
+The focused check executes the actual private native camera and creature routines.
+It measured40/32 to120/96 camera units/tick and a synthetic quarter-turn fixture
+(original speed16, acceleration2) taking68 ticks at native scale versus23 at the
+new scale. This establishes the proportional timing within tick rounding, not
+fight balance or physical-pad acceptance. Startup preserves custom sensitivity,
+bindings and enemy preferences even when the obsolete analog migration marker is
+zero. New defaults never overwrite saved values.
+
 Setup version 2 reads and writes binding choices directly through the existing
 `settings.json` tables. Its `input.keys.*`, `input.pad.*` and
 `input.padanalog.*` keys are specification paths, never mirrored INI values.

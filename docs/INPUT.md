@@ -398,7 +398,7 @@ hack overriding the bytes `Analog` reads, not committed; no pad was attached):
   go through the runtime's D-pad binding);
 - the feel: sensitivities, the ramp, the deadzones, at 60 and 144 fps.
 
-### The stick turns at the original's speed (2026-10-14)
+### Prior original-speed default (2026-10-14)
 
 Verdite2's change (its PR #61), on this game's addresses. The defaults turned the
 view more than twice as fast as the game can: look acceleration took a full stick
@@ -407,7 +407,7 @@ started and stopped the view dead, and the sensitivities were 1.25. The game's
 fights are built on how fast the player turns: a creature cannot reach a player
 who circles it faster than the D-pad allows.
 
-So by default a stick now turns as the D-pad does, and looks as L2/R2 do:
+At that revision a default stick turned as the D-pad did, and looked as L2/R2 did:
 
 * **The speed at full deflection is the game's own**: the turn rate at
   `0x801B2668` (32 walking, 40 standing), and 32 a tick for the look. A partial
@@ -418,12 +418,13 @@ So by default a stick now turns as the D-pad does, and looks as L2/R2 do:
   velocity (`0x801B264C`, `0x801B264E`) when the stick takes over from a D-pad turn
   or its decay, but not from a step the mouse drove. 3D's left-stick turn shares
   it.
-* **Faster is opt-in.** Look acceleration and the instant stop are off, and the
-  turn and look sensitivities default to 1.0; the sliders still go to 3.0. A
-  config saved before this is brought to the new defaults once
+* **Prior defaults.** Look acceleration and the instant stop were off, and the
+  turn and look sensitivities defaulted to 1.0; the sliders still went to 3.0. A
+  config saved before this was brought to those defaults once
   (`kf3.analog.defaults` = 2): acceleration and the instant stop off, a turn or look
   sensitivity above 1.0 put back to 1.0, and a console line saying how many were
-  reset. A variable still wins; it never touched the store.
+  reset. That destructive migration was removed on 2026-11-03: saved custom
+  sensitivity, acceleration, instant-stop and ease values are now retained.
 
 **2D's stick does not ease, by default** (2026-10-18, the user: easing disabled in
 2D). *Stick eases in and out* (`StickEase`, `kf3.analog.ease`, `KF3_ANALOG_EASE=1`;
@@ -431,8 +432,8 @@ Input ▸ Gamepad) is off: the stick's turn and look are what its position asks 
 once, through the same deadzone, curve and cap, and a released stick stops dead the
 tick after, as the instant stop does (whose checkbox is dimmed then, having nothing
 to add). On brings the ramp above back. 2D's right stick only: 3D's left-stick turn
-keeps its ease. A config that saved the ease on is turned off once
-(`kf3.analog.defaults` = 3), with a console line. The mouse and the gyro never
+keeps its ease. The former one-time reset of saved ease (`kf3.analog.defaults`
+version3) was removed on 2026-11-03. The mouse and the gyro never
 eased; the D-pad, keyboard and L2/R2 keep the game's own ramp, which is the game's,
 not the port's, and so does 2D's walk and strafe momentum.
 
@@ -452,7 +453,7 @@ the right stick turns and looks.
 3D is one stick, as tank controls are. `ReplaceMove` drops the left stick's sideways
 deflection, so the stick no longer strafes, and `BeforeLook` adds it to the turn
 instead: full deflection turns at the game's own rate (`0x801B2668`, 32 walking, 40
-standing) times the turn sensitivity (`kf3.analog.turn`, 1.0), and
+standing) times the turn sensitivity (`kf3.analog.turn`, default3), and
 `kf3.analog.invertturn` flips it. The right stick's look ramp does not apply to
 that turn. Forward and back keep the move curve, read on their own deadzone (below).
 L1 and R1 strafe and L2 and R2 look, as the game has them, and **the right stick is

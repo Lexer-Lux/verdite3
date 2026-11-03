@@ -7,6 +7,9 @@ using RecompOne.Runtime.Context;
 using RecompOne.Runtime.Events;
 using RecompOne.Runtime.Host.Window;
 using RecompOne.Runtime.Memory;
+using RecompOne.Runtime.Hardware;
+using RecompOne.Runtime.Dispatch;
+using Recompiled;
 using Verdite.Core;
 using Rt = RecompOne.Runtime.Runtime;
 
@@ -22,7 +25,26 @@ try
 {
     void Check(bool ok, string why) { if (!ok) throw new Exception(why); }
     string Json(object value) => JsonSerializer.Serialize(value);
+    Verdite.Core.Game.Configure(tag: "KF3");
+    Kept.BoolsAsInts = true;
+    Mouse.Configure(MouseLook.Game);
     ConfigManager.Load();
+
+    Check(Analog.TurnSens == 3 && Analog.PitchSens == 3 && EnemyTurn.Multiplier == 3 && !EnemyTurn.Track,
+        "fresh defaults use compensated x3 look without adding standing tracking");
+    Check(PortSettings.StickTurn.Default == 3 && PortSettings.StickLook.Default == 3 &&
+          PortSettings.EnemyTurnSpeed.Default == 3 && PortSettings.MouseTurn.Default == 1,
+        "native setting defaults agree; mouse sensitivity is unchanged");
+    using (var specJson = JsonDocument.Parse(File.ReadAllText(config)))
+    {
+        var defaults = specJson.RootElement.GetProperty("defaults");
+        Check(defaults.GetProperty(Analog.TurnSensKey).GetString() == "3" &&
+              defaults.GetProperty(Analog.PitchSensKey).GetString() == "3" &&
+              defaults.GetProperty(EnemyTurn.Key).GetString() == "3", "setup defaults match native defaults");
+        var turning = specJson.RootElement.GetProperty("pages").EnumerateArray().Single(p => p.GetProperty("id").GetString() == "turning");
+        Check(turning.GetProperty("presets").EnumerateArray().All(p => p.GetProperty("value").GetDouble() == 3),
+            "setup presets retain proportional enemy compensation");
+    }
     ConfigManager.Game.Keys = KeyLayout.Layout();
     ConfigManager.Game.Pad = new();
     ConfigManager.Game.PadAnalog = GamepadBindings.DefaultAnalog();
@@ -131,7 +153,77 @@ try
     Check(Rt.View.GetFloat("kf3.renderdistance.fade", -1) == 0 && !Rt.View.Has("kf3.renderdistance"), "fade-only save writes only raw band key");
     ConfigManager.Load();
     Check(Rt.View.GetFloat("kf3.renderdistance.fade", -1) == 0 && Rt.View.GetString("unrelated.setting") == "keep", "disk reload preserves band and unrelated preferences");
-    Console.WriteLine("PASS: Classic/Modern tables, Custom preservation, real binding storage/reload, authorized menus, run scope, distance independence, save/discard, menu capacity");
+    Dispatcher.Register("game", new GameDispatchTable());
+    Dispatcher.Load("game");
+    int Camera(float sensitivity, int rate, bool pitch)
+    {
+        var ram = new PSMemory();
+        for (int i = 0; i < logical.Length; i++) ram.WriteU16(0x80081868u + (uint)i * 2, logical[i]);
+        ram.WriteU16(0x801B2668, (ushort)rate);
+        Controller.LeftX = Controller.LeftY = 128;
+        Controller.RightX = pitch ? (byte)128 : (byte)255;
+        Controller.RightY = pitch ? (byte)255 : (byte)128;
+        Analog.Tank = Analog.StickEase = Analog.LookAccel = false;
+        Analog.TurnSens = Analog.PitchSens = sensitivity;
+        ushort held = Analog.BeforeLook(ram, 0, 0, 0, 0, 0, false);
+        ram.WriteU16(0x801B265C, held);
+        KingsField3_game.func_8002F5C0(new CpuContext { SP = 0x801FF000 }, ram);
+        int angle = ram.ReadU16(pitch ? 0x801B2610u : 0x801B2612u);
+        return Math.Abs(((angle + 2048) & 4095) - 2048);
+    }
+    Check(Camera(1, 40, false) == 40 && Camera(3, 40, false) == 120,
+        "actual native standing yaw proves linear x3, below the x4 cap");
+    Check(Camera(1, 32, false) == 32 && Camera(3, 32, false) == 96 &&
+          Camera(1, 40, true) == 32 && Camera(3, 40, true) == 96,
+        "actual native walking yaw and pitch prove x3 without movement changes");
+    Controller.RightX = Controller.RightY = 128;
+    var enemyRam = new PSMemory();
+    const uint creature = 0x80190000;
+    enemyRam.WriteU32(0x801B25F0, unchecked((uint)-2048));
+    enemyRam.WriteU32(0x801B25F8, 0);
+    enemyRam.WriteU32(creature + 0x50, 123);
+    enemyRam.WriteU32(creature + 0x54, 456);
+    int TurnTicks(float multiplier)
+    {
+        EnemyTurn.SetMultiplier(multiplier);
+        enemyRam.WriteU16(creature + 0x42, 0);
+        enemyRam.WriteU16(creature + 0x58, 0);
+        for (int tick = 1; tick <= 200; tick++)
+        {
+            var cpu = new CpuContext { SP = 0x801FF000, A0 = creature, A1 = 1024, A2 = 16, A3 = 2 };
+            EnemyTurn.BeforeTurn(cpu, enemyRam);
+            Check(cpu.A2 == (multiplier == 1 ? 16 : 48) && cpu.A3 == (multiplier == 1 ? 2 : 18),
+                "enemy top speed scales x3 and acceleration x9");
+            KingsField3_game.func_8004E928(cpu, enemyRam);
+            if (enemyRam.ReadU16(creature + 0x42) == 1024) return tick;
+        }
+        throw new Exception("native creature did not reach target");
+    }
+    int nativeTicks = TurnTicks(1), compensatedTicks = TurnTicks(3);
+    Check(compensatedTicks < nativeTicks && Math.Abs(nativeTicks / 3.0 - compensatedTicks) <= 2,
+        "actual native quarter-turn time tracks the camera speed ratio within tick rounding");
+    var wander = new CpuContext { A0 = creature, A1 = 2048, A2 = 16, A3 = 2 };
+    EnemyTurn.BeforeTurn(wander, enemyRam);
+    Check(wander.A2 == 16 && wander.A3 == 2 && enemyRam.ReadU32(creature + 0x50) == 123 &&
+          enemyRam.ReadU32(creature + 0x54) == 456, "wandering turns and movement remain native");
+    Console.WriteLine($"Measured native look: 40/32 -> 120/96 units/tick; creature quarter-turn fixture: {nativeTicks} -> {compensatedTicks} ticks");
+
+    // Even a pre-migration config is a custom choice, not permission to reset it.
+    Rt.View.SetInt("kf3.analog.defaults", 0);
+    Rt.View.SetFloat(Analog.TurnSensKey, 2.4f);
+    Rt.View.SetFloat(Analog.PitchSensKey, 1.7f);
+    Rt.View.SetInt(Analog.EaseKey, 1);
+    Rt.View.SetFloat(EnemyTurn.Key, 1.5f);
+    Rt.View.SetInt(EnemyTurn.TrackKey, 1);
+    string choices = Json(Rt.View.Values), bindings = File.ReadAllText("settings.json");
+    Analog.Install();
+    EnemyTurn.Install();
+    Event.Dispatch(new RuntimeReadyEvent());
+    Check(Analog.TurnSens == 2.4f && Analog.PitchSens == 1.7f && Analog.StickEase &&
+          EnemyTurn.Multiplier == 1.5f && EnemyTurn.Track, "custom sensitivities and enemy preferences survive startup");
+    Check(Json(Rt.View.Values) == choices && File.ReadAllText("settings.json") == bindings,
+        "startup does not rewrite saved choices or custom bindings");
+    Console.WriteLine("PASS: Classic/Modern tables, Custom preservation, binding storage/reload, authorized menus, run scope, distance independence, compensated look and native enemy turns");
 }
 finally
 {

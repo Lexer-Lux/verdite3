@@ -34,8 +34,8 @@ kept.
 | `KF3_AUTORELOAD_DELAY` | seconds of the death sequence before the reload (0-10); not a setting | 2.5 |
 | `KF3_FOCUS_PAUSE` | `0`: keep running and sounding while the window has no focus; off for a run `KF3_SHELL`, `KF3_AUTOPAD`, `KF3_AUTOSTART` or `KF3_AGENT` drives, and `1` turns it back on there. Settings ▸ Gameplay ▸ Pause in the background, kept as `kf3.focuspause.on`; the variable wins (`docs/DEVELOPMENT.md`, "Pausing when the window loses focus") | on |
 | `KF3_GEARCOMPARE` | `0`: no stat comparison on the equipment and shop lists; `probe`: a line for each item compared. Settings ▸ Gameplay, kept as `kf3.gearcompare.enabled`; the variable wins | on |
-| `KF3_ENEMYTURN` | `1`..`8`: how fast creatures turn at the player, a multiple of the game's own (speed x k, acceleration x k²). Settings ▸ Gameplay ▸ Enemy turn speed and setup's turning page, kept as `kf3.enemyturn`; the variable wins | 1 |
-| `KF3_ENEMYTURN_TRACK` | `0`: an engaged creature standing still is not turned at the player each tick; inert at x1. Gameplay ▸ Track you while standing, kept as `kf3.enemyturn.track` | on |
+| `KF3_ENEMYTURN` | `1`..`8`: how fast creatures turn at the player, a multiple of the game's own (speed x k, acceleration x k²). Settings ▸ Gameplay ▸ Enemy turn speed and setup's turning page, kept as `kf3.enemyturn`; the variable wins | 3 |
+| `KF3_ENEMYTURN_TRACK` | `1`: an engaged creature standing still is also turned at the player each tick; inert at x1. Gameplay ▸ Track you while standing, kept as `kf3.enemyturn.track` | off |
 | `KF3_ENEMYTURN_ALL` | `1`: scale every creature turn, wandering too; a comparison only | off |
 | `KF3_ENEMYTURN_PROBE` | `1`: every 5 s, a census of `func_8004E928`'s callers; `2`: also a line a tick for each awake creature within 12000 (action, rule, HP, facing off the player, turned / tracked / standing) | off |
 | `KF3_MAPKEY` | `0`: M and the pad's touchpad do nothing. On, they open the map of the area the player is in when its item is held (PIXY'S MAP, else MAP OF VERDITE in areas 0..11); `docs/GAME_INTERNALS.md`, "The maps" | on |
@@ -126,7 +126,7 @@ kept.
 | `KF3_TANK` | `1`: 3D controls, one stick as tank controls: the left stick walks and turns, L1 and R1 strafe, L2 and R2 look, the right stick is not read; `0` or unset: 2D, the left stick walks and strafes (Settings ▸ Gameplay ▸ Controls, `kf3.controls`) | off |
 | `KF3_ANALOG_LOOK` | `0`: the right stick stops turning and looking | on |
 | `KF3_ANALOG_MOVE_ENABLE` | `0`: the left stick stops walking and strafing | on |
-| `KF3_ANALOG_TURN`, `KF3_ANALOG_PITCH`, `KF3_ANALOG_MOVE` | stick sensitivities, turn, pitch and move; above 1.0 is faster than the D-pad | 1.0, 1.0, 1.0 (2026-10-14) |
+| `KF3_ANALOG_TURN`, `KF3_ANALOG_PITCH`, `KF3_ANALOG_MOVE` | stick sensitivities, turn, pitch and move; above 1.0 is faster than the D-pad | 3.0, 3.0, 1.0 (2026-11-03) |
 | `KF3_ANALOG_DEADZONE`, `KF3_ANALOG_MOVEDEADZONE` | radial deadzones, look (and move unless the second is set) and move | 0.15 |
 | `KF3_ANALOG_CURVE`, `KF3_ANALOG_MOVECURVE` | response curves | 1.35 / 1.0 |
 | `KF3_ANALOG_ACCEL`, `KF3_ANALOG_ACCELMAX`, `KF3_ANALOG_ACCELTIME` | the look acceleration: on, the peak multiplier and the seconds to reach it; on turns past the D-pad's rate | 0 / 2.2 / 0.5 (2026-10-14) |

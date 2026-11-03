@@ -11,9 +11,12 @@
     "kf3.pacing": "1",
     "kf3.fps": "144",
     "kf3.analog.on": "1",
+    "kf3.analog.turn": "3",
+    "kf3.analog.pitch": "3",
     "kf3.controls": "0",
     "kf3.analog.accel": "0",
-    "kf3.enemyturn": "1",
+    "kf3.enemyturn": "3",
+    "kf3.enemyturn.track": "0",
     "kf3.rumble.on": "1",
     "kf3.rumble.hd": "1",
     "kf3.gyroaim.on": "1",
@@ -798,15 +801,15 @@
       "presets": [
         {
           "option": -1,
-          "value": 1
+          "value": 3
         },
         {
           "option": -1,
-          "value": 1
+          "value": 3
         },
         {
           "option": -1,
-          "value": 1
+          "value": 3
         }
       ]
     }
