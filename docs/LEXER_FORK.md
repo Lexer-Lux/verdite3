@@ -15,6 +15,10 @@ Classic/Modern control choice belongs in first-run and rerun setup. Forget Me No
 is a separate ordinary user-library source mod for containers and real doors;
 it must never reveal illusory walls.
 
+The additional requested mods are Better Sprint, Better Poison and XP Bar. Each
+is an ordinary source-only user-library mod, separate from the fork's default
+gameplay. All four requested mods are imported into the library, disabled.
+
 - [ ] Deliver and verify the native fork without interrupting an active game.
 - [ ] Integrate shared Lexeditor Mods and Settings.
 - [ ] Verify numeric view distance and smooth fade independently, including persistence.
@@ -82,20 +86,33 @@ separate build, storage, rendered-UI and real-game evidence before completion.
   and linking: 22 stages, 15 programs, no findings. This does not establish scene
   appearance.
 - Player card/settings hashes were unchanged across the private runs. No active
-  game was stopped and no live installation was replaced.
+  game was stopped. The installation below was completed separately; player
+  files were left unchanged.
+- XP Bar's focused source check compiles its actual source and the generic
+  physical-framebuffer HUD API. Synthetic checks cover native progression,
+  full-width bottom placement at several framebuffer sizes, GL state restoration,
+  clipping, callback disposal and overlay transitions. They do not establish
+  rendered gameplay appearance. The production Lexeditor adapter and real native
+  compiler/loader subsequently loaded all four source mods together.
 
 ### Shared components and delivery
 
 The shared onboarding source is checkpointed in Lexer-Lux/verdite-core on
-`codex/kf3-binding-setup` (`86e8834`). The generic map-half glow, headless diagnostics
-and dependency-aware source-mod priority are checkpointed in
-Lexer-Lux/verdite-recompone on `codex/kf3-half-glow` (`5cb30a6`). Neither change
+`codex/kf3-binding-setup` (`15785d3`). The generic map-half glow, physical HUD,
+headless diagnostics, dependency-aware source-mod priority and compiler metadata
+are checkpointed in Lexer-Lux/verdite-recompone on `codex/kf3-mod-compiler`
+(`b52b67c`). Neither change
 was submitted upstream or pushed to a default branch.
 
-The normal Windows launcher candidate is assembled outside the checkout. It
-contains the launcher/runtime and source build inputs, without disc data, card
-files or the generated game assembly. Installation and GPU scene acceptance
-remain pending while the user's existing game is active.
+The normal Windows fork is installed at `D:/Programs/Verdite3`. The original
+installation is retained at `D:/Programs/Verdite3.original`; player files were
+left unchanged. The latest candidate's414 installed files were hash-verified.
+Its normal installed launcher privately compiled the shipped sources from the
+disc and loaded a real source mod before reaching the game overlay, using
+isolated data. The windowless launcher bypasses invisible setup/popups and reports
+build failures through its log. GPU scene appearance and physical-pad
+feel are still unverified. The distribution contains the launcher/runtime and
+source build inputs, without disc data, card files or the generated game assembly.
 
 The requested Forget Me Not source mod is in the user's library, disabled. It is
 not bundled into the fork as gameplay behavior. Its own README and credits record
@@ -103,3 +120,8 @@ the independently verified KF3 interaction facts and the material reference
 AnatoliySolomichev/kings_field_2_re. Its read-only disc census covers the container
 and real-door families, excludes hidden-wall/transition opcodes, and proves the
 native lift-door glow footprints do not intersect hidden-wall cell/halves.
+
+Better Sprint, Better Poison and XP Bar are also disabled source-only library
+mods. Their focused checks and successful native-loader attachment remain
+separate from visual acceptance. No mod's gameplay behavior is bundled into the
+fork. No user game was stopped or restarted during installation or diagnostics.

@@ -105,6 +105,21 @@ Inspected: first-run Classic at 1200x800, first-run Modern at 760x500 with 1.5 U
 scale, rerun Custom at both sizes, and the Input buttons at 800x240 and 420x260
 with 1.5 scale. Controls and text fit without clipping in these views.
 
-Private in-game run-speed and interaction measurements, the complete installed
-Settings window and physical-pad feel remain separate checks. No player
-installation or save was changed here.
+Private headless gameplay measured equal two-second input segments: walk 5,730
+units, held Run 9,606 and Interact 5,730. The native walk limit was 200, 336 and
+200 respectively, returning to 200 after release. This verifies the separate
+native run path; it does not establish physical-pad feel or rendered gameplay.
+
+The fork is installed at `D:/Programs/Verdite3`, with the original retained at
+`D:/Programs/Verdite3.original` and player files unchanged. The latest normal
+installed launcher compiled the shipped source from the disc and loaded a source
+mod in isolated headless data, reaching the game overlay. The complete installed
+Settings window and physical-pad
+feel remain separate acceptance checks.
+
+Forget Me Not is a separate disabled user-library source mod. Better Sprint,
+Better Poison and XP Bar are additional disabled source-only library mods. All
+four loaded together through the actual native source compiler/loader after
+deployment by Lexeditor's production adapter. Their activation does not change the
+Classic/Modern binding contract described here. Source checks do not establish
+their rendered gameplay appearance.
