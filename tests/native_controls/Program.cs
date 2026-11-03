@@ -60,11 +60,12 @@ try
     mem.WriteU16(0x80081874, 0x80);
     mem.WriteU16(0x80081872, 0x40);
     mem.WriteU16(0x80081876, 0x20);
-    var read = new PadReadEvent { Context = new() { RA = 0x80031128 }, Memory = mem, Buttons = unchecked((ushort)~(0x80 | 0x40 | SeparateRun.RunMask)) };
+    var read = new PadReadEvent { Context = new() { RA = PadReadContext.BiosReturn, SP = 0x801FFC48 }, Memory = mem, Buttons = unchecked((ushort)~(0x80 | 0x40 | SeparateRun.RunMask)) };
+    mem.WriteU32(read.Context.SP + 0x10, 0x80031128);
     SeparateRun.Enabled = true;
     SeparateRun.OnPadRead(read);
     Check((ushort)~read.Buttons == (0x10 | 0x20 | SeparateRun.RunMask), "Modern action mapping follows saved guest preset");
-    read.Context.RA = 0x800279B4;
+    mem.WriteU32(read.Context.SP + 0x10, 0x800279B4);
     read.Buttons = unchecked((ushort)~SeparateRun.RunMask);
     mem.WriteU16(0x8009C250, 0x20);
     SeparateRun.OnPadRead(read);
@@ -72,6 +73,24 @@ try
     read.Buttons = unchecked((ushort)~(0x80 | 0x10));
     SeparateRun.OnPadRead(read);
     Check((ushort)~read.Buttons == (0x4 | 0x8), "combat shoulders retain native menu page actions");
+    mem.WriteU32(read.Context.SP + 0x10, 0x80020000);
+    ushort unrelated = unchecked((ushort)~(0x80 | 0x10 | SeparateRun.RunMask));
+    read.Buttons = unrelated;
+    SeparateRun.OnPadRead(read);
+    Check(read.Buttons == unrelated, "unrelated wrapped callers remain untouched");
+    AutoStart.Configure("new");
+    typeof(AutoStart).GetField("_overlay", BindingFlags.NonPublic | BindingFlags.Static)!.SetValue(null, "game");
+    read.Buttons = 0xFFFF;
+    mem.WriteU32(read.Context.SP + 0x10, 0x80027A80);
+    AutoStart.OnPadRead(read);
+    Check((ushort)~read.Buttons == 0x40, "opt-in startup wait-any is acknowledged");
+    read.Buttons = 0xFFFF;
+    mem.WriteU32(read.Context.SP + 0x10, 0x80027A54);
+    AutoStart.OnPadRead(read);
+    Check(read.Buttons == 0xFFFF, "startup release loop gets no acknowledgement");
+    mem.WriteU32(read.Context.SP + 0x10, 0x80020000);
+    AutoStart.OnPadRead(read);
+    Check(read.Buttons == 0xFFFF, "unrelated startup reads get no acknowledgement");
     var run = typeof(SeparateRun).GetMethod("Run", BindingFlags.NonPublic | BindingFlags.Static)!;
     bool inside = false;
     Action<CpuContext, IMemory> original = (_, m) => { inside = m.ReadU16(0x80081876) == SeparateRun.RunMask; throw new InvalidOperationException("fixture"); };
@@ -124,12 +143,13 @@ finally
 sealed class TestMemory : IMemory
 {
     readonly Dictionary<uint, ushort> words = [];
+    readonly Dictionary<uint, uint> longs = [];
     public ushort ReadU16(uint address) => words.GetValueOrDefault(address);
     public void WriteU16(uint address, ushort value) => words[address] = value;
     public byte ReadU8(uint address) => throw new NotSupportedException();
-    public uint ReadU32(uint address) => throw new NotSupportedException();
+    public uint ReadU32(uint address) => longs.GetValueOrDefault(address);
     public void WriteU8(uint address, byte value) => throw new NotSupportedException();
-    public void WriteU32(uint address, uint value) => throw new NotSupportedException();
+    public void WriteU32(uint address, uint value) => longs[address] = value;
     public uint ReadWordLeft(uint current, uint address) => throw new NotSupportedException();
     public uint ReadWordRight(uint current, uint address) => throw new NotSupportedException();
     public void WriteWordLeft(uint address, uint value) => throw new NotSupportedException();

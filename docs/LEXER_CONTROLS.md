@@ -52,11 +52,13 @@ At full ramp this is 334. Release sets `0x801B24F5` to one and the ramp decays
 by 100. The original power costs and movement/collision path stay in the game.
 These facts were derived from this disc's private generated source, not KF2.
 
-At the gameplay PadRead return `0x80031128`, the Modern logical inputs are
+The PadRead BIOS event sees SDK return `0x800785BC`; the wrapper stores its
+actual caller at guest `SP+0x10`. `PadReadContext` reads that saved caller only
+at the known SDK return. At gameplay caller `0x80031128`, Modern logical inputs are
 translated through the loaded save's actual action-mask table. Changing a
 guest face/direction preset therefore does not silently swap the Modern attack,
 cast, use and menu actions. At native menu return `0x800279B4`, shoulders retain
-page navigation. Other non-gameplay reads translate the Run action to Cancel.
+page navigation and translate Run to Cancel. Other callers remain untouched.
 
 `kf3.controls.separaterun` is an ordinary native setting, zero by default and
 one in Modern. The diagnostic `KF3_SEPARATERUN=0|1` overrides it for a run.
@@ -88,6 +90,13 @@ Modern tables, Custom preservation, binding disk reload, no duplicate binding
 store, player-two/path isolation, alternate guest action masks, menu cancel/page
 actions, and run-mask restoration even on faults. It also covers independent
 distance/fade settings, raw fade-band persistence, discard and native row limits.
+
+The native context fixtures use the real SDK return and saved guest caller;
+direct synthetic caller addresses alone do not establish the event's context.
+An opt-in AutoStart acknowledgement is restricted to the startup wait-any caller
+`0x80027A80` while GAME.EXE starts, allowing disabled-card notices to continue.
+The following release caller `0x80027A54` and unrelated reads get no injected
+acknowledgement.
 
 The focused check passed after the native rebuild, including the menu-page
 assertion. The actual setup binding page and Input profile controls were rendered

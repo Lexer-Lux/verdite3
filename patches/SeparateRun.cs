@@ -58,7 +58,8 @@ public static class SeparateRun
     {
         if (!Enabled || e.Port != 0) return;
         ushort pressed = (ushort)~e.Buttons;
-        if (e.Context.RA == GameplayReadReturn)
+        uint caller = PadReadContext.Caller(e);
+        if (caller == GameplayReadReturn)
         {
             // Modern bindings name actions. Follow a loaded save's actual guest
             // action table instead of assuming its face/direction preset is 3/0.
@@ -67,17 +68,14 @@ public static class SeparateRun
                 if ((pressed & Logical[i]) != 0) actual |= e.Memory.ReadU16(0x80081868u + (uint)i * 2);
             e.Buttons = (ushort)~actual;
         }
-        else
+        else if (caller == MenuReadReturn)
         {
             // The same shoulder actions turn pages in the game's menu loops.
             // Do this only at the measured menu reader, not item presentations.
-            if (e.Context.RA == MenuReadReturn)
-            {
-                ushort menu = (ushort)(pressed & ~(0x0080 | 0x0010));
-                if ((pressed & 0x0080) != 0) menu |= 0x0008;
-                if ((pressed & 0x0010) != 0) menu |= 0x0004;
-                e.Buttons = (ushort)~menu;
-            }
+            ushort menu = (ushort)(pressed & ~(0x0080 | 0x0010));
+            if ((pressed & 0x0080) != 0) menu |= 0x0008;
+            if ((pressed & 0x0010) != 0) menu |= 0x0004;
+            e.Buttons = (ushort)~menu;
             // Circle is Back while a chooser reads the pad, not Run.
             if ((pressed & RunMask) != 0)
             {
