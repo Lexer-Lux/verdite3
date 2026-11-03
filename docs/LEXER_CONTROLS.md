@@ -46,10 +46,10 @@ original table. This is an in-memory hook, not an executable patch.
 
 The KF3 held-use block begins at `0x80030010`: holding the use action decrements
 `0x801B24F5` to zero. The next stage-4 `func_80030FCC` grows signed
-`0x801B24F6` by 800, capped at 2,752, while that byte is zero. At `0x800312E4`
+`0x801B24F6` by 800, capped at 2,800, while that byte is zero. At `0x800312E4`
 the game adds `(ramp * baseWalk) >> 12` to `0x801B2664`, whose base is 200.
-At full ramp this is 334. Release sets `0x801B24F5` to one and the ramp decays
-by 100. The original power costs and movement/collision path stay in the game.
+At full ramp this is 336. Release sets `0x801B24F5` to one and the ramp decays
+by 800. The original power costs and movement/collision path stay in the game.
 These facts were derived from this disc's private generated source, not KF2.
 
 The PadRead BIOS event sees SDK return `0x800785BC`; the wrapper stores its
