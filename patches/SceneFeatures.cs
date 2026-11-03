@@ -32,9 +32,10 @@ public static class SceneFeatures
       "kf3scene.high": {"en":"High", "pt-BR":"Alta", "es-419":"Alta"},
       "kf3scene.distance": {"en":"Enhancement distance (tiles)", "pt-BR":"Distância das melhorias (blocos)", "es-419":"Distancia de las mejoras (bloques)"},
       "kf3scene.everywhere": {"en":"Enhance at every distance", "pt-BR":"Melhorar em todas as distâncias", "es-419":"Mejorar a cualquier distancia"},
-      "kf3scene.far": {"en":"Draw past the game's distance", "pt-BR":"Desenhar além da distância do jogo", "es-419":"Dibujar más allá de la distancia del juego"},
-      "kf3scene.fartiles": {"en":"Render distance (tiles)", "pt-BR":"Distância de renderização (blocos)", "es-419":"Distancia de renderizado (bloques)"},
-      "kf3scene.fadein": {"en":"Fade in at the edge of the view", "pt-BR":"Surgir gradualmente na borda da visão", "es-419":"Aparecer gradualmente en el borde de la vista"},
+      "kf3scene.fartiles": {"en":"View distance (tiles)", "pt-BR":"Distância de visão (blocos)", "es-419":"Distancia de visión (bloques)"},
+      "kf3scene.fartip": {"en":"Draws scenery further away. Zero uses the game's own changing distance. Values below that distance cannot reduce it.", "pt-BR":"Desenha o cenário mais longe. Zero usa a distância variável do jogo. Valores menores não a reduzem.", "es-419":"Dibuja el escenario más lejos. Cero usa la distancia variable del juego. Los valores menores no la reducen."},
+      "kf3scene.fadein": {"en":"Smooth distance fade", "pt-BR":"Transição suave de distância", "es-419":"Transición suave de distancia"},
+      "kf3scene.fadetip": {"en":"Gradually hides scenery at the view limit. Keeps view distance and fog unchanged. Requires the retained GPU renderer.", "pt-BR":"Oculta gradualmente o cenário no limite de visão. Mantém a distância de visão e a neblina. Requer o renderizador GPU retido.", "es-419":"Oculta gradualmente el escenario en el límite de visión. Mantiene la distancia de visión y la niebla. Requiere el renderizador GPU retenido."},
       "kf3scene.fadetiles": {"en":"Fade band (tiles)", "pt-BR":"Faixa de transição (blocos)", "es-419":"Franja de transición (bloques)"},
       "kf3scene.renderer": {"en":"Scene renderer", "pt-BR":"Renderizador da cena", "es-419":"Renderizador de la escena"},
       "kf3scene.reference": {"en":"Reference packets", "pt-BR":"Pacotes de referência", "es-419":"Paquetes de referencia"},
@@ -119,18 +120,16 @@ public static class SceneFeatures
         if (ImGui.IsItemDeactivatedAfterEdit()) Keep(PortSettings.EnhanceDistance, tiles);
         ImGui.EndDisabled();
         // The retained renderer's reach and the fade at its edge (RenderDistance).
-        bool far = RenderDistance.Tiles > 0;
-        float reach = far ? RenderDistance.Tiles : 16;
-        if (ImGui.Checkbox(T("far"), ref far)) Keep(PortSettings.RenderDist, far ? reach : 0);
-        ImGui.BeginDisabled(!far);
-        if (ImGui.SliderFloat(T("fartiles"), ref reach, 8, RenderDistance.MaxTiles, "%.0f")) RenderDistance.SetTiles(reach);
+        float reach = RenderDistance.Tiles;
+        if (ImGui.SliderFloat(T("fartiles"), ref reach, 0, RenderDistance.MaxTiles, "%.1f", ImGuiSliderFlags.AlwaysClamp)) RenderDistance.SetTiles(reach);
         if (ImGui.IsItemDeactivatedAfterEdit()) Keep(PortSettings.RenderDist, reach);
-        ImGui.EndDisabled();
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip(T("fartip"));
         bool fade = RenderDistance.FadeTiles > 0;
         float band = fade ? RenderDistance.FadeTiles : 3;
         if (ImGui.Checkbox(T("fadein"), ref fade)) Keep(PortSettings.RenderFade, fade ? band : 0);
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip(T("fadetip"));
         ImGui.BeginDisabled(!fade);
-        if (ImGui.SliderFloat(T("fadetiles"), ref band, 0.5f, RenderDistance.MaxFade, "%.1f")) RenderDistance.SetFade(band);
+        if (ImGui.SliderFloat(T("fadetiles"), ref band, 0.25f, RenderDistance.MaxFade, "%.2f", ImGuiSliderFlags.AlwaysClamp)) RenderDistance.SetFade(band);
         if (ImGui.IsItemDeactivatedAfterEdit()) Keep(PortSettings.RenderFade, band);
         ImGui.EndDisabled();
     }

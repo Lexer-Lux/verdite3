@@ -10,7 +10,7 @@ return Launcher.Run(new LauncherGame
 {
     Name = "Verdite3",
     AppId = "verdite3",
-    GameTitle = "King's Field II",
+    GameTitle = "King's Field III",
     Serial = "SLUS-00255",
 
     // King's Field (SLUS-00158) is the other US King's Field, and the series was
@@ -26,7 +26,7 @@ return Launcher.Run(new LauncherGame
 
     RecompilerConfig = "kf3.json",
     GameAssembly = "KingsField3",
-    UpdateRepository = "Voicedrew11/verdite3",
+    UpdateRepository = "Lexer-Lux/verdite3",
 
     // OPEN.EXE is the title, and GAME.EXE arriving afresh is the memory card
     // screen (its start menu) before any area; an area module or END.EXE is play.
