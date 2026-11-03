@@ -23,6 +23,13 @@ and slider flags, with IDs scoped by label; separate mods use the same layout.
 Actual ModsPopup draw data and fonts were rendered without a host or audio for
 small and large windows; no game behavior or settings storage lives here.
 
+Retained-model colour amendment (2026-11-03): reuse Verdite2's per-instance
+`ColourMixRgb` / `ColourMix` API, mixing final textured, lit and fogged RGB
+before output quantization. Changing RGBC instead cannot add red to a green
+texel. The backend clamps strength, clears the uniform after model draws, and
+keeps holes, alpha, depth and normal passes unchanged. Packet rendering has no
+equivalent API and must not imitate this by changing the lighting inputs.
+
 `patches/*.patch` are no longer replayed (the tree is this fork, taken into each
 game as a subtree — see Verdite2's `docs/RECOMPONE_FORK.md`), but they are still the record of what the port changed
 in the runtime and the recompiler and why, and the numbering is still how each
