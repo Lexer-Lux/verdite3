@@ -10,8 +10,6 @@ namespace RecompOne.Runtime.Modding;
 
 public static class ModCompiler
 {
-    private static List<MetadataReference>? _references;
-
     public static byte[]? Compile(string modId, IReadOnlyList<(string Path, string Text)> sources)
     {
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest);
@@ -36,12 +34,21 @@ public static class ModCompiler
 
     private static unsafe List<MetadataReference> References()
     {
-        if (_references != null) return _references;
-
         var refs = new List<MetadataReference>();
-        foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+        var pending = new Queue<Assembly>(AppDomain.CurrentDomain.GetAssemblies());
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        while (pending.TryDequeue(out var a))
         {
-            if (a.IsDynamic) continue;
+            if (a.IsDynamic || !seen.Add(a.FullName ?? a.GetName().Name ?? "")) continue;
+
+            // Public mod APIs can depend on assemblies not JIT-loaded yet,
+            // especially during headless startup. Resolve available managed
+            // dependencies without running their initialization.
+            foreach (var dependency in a.GetReferencedAssemblies())
+                try { pending.Enqueue(Assembly.Load(dependency)); }
+                catch (FileNotFoundException) { } // Optional/unavailable dependency.
+                catch (FileLoadException) { }
+                catch (BadImageFormatException) { }
 
             if (!string.IsNullOrEmpty(a.Location))
             {
@@ -55,7 +62,7 @@ public static class ModCompiler
                     AssemblyMetadata.Create(ModuleMetadata.CreateFromMetadata((IntPtr)blob, length)).GetReference());
         }
 
-        _references = refs;
-        return _references;
+        // A later mod/overlay may add assemblies; never freeze the first snapshot.
+        return refs;
     }
 }

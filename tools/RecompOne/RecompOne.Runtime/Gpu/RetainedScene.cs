@@ -534,9 +534,15 @@ public static class RetainedScene
         /// view's gate, which nothing grows or fades. 0089: the port may add halves
         /// past the walk's reach (<see cref="CurrentMainHalves"/>).</summary>
         public readonly byte[] MainHalves = new byte[HalvesW * HalvesH];
+        /// <summary>Optional RGB additive glow per main-view map half. Zero is the
+        /// original material. Cleared every frame; never changes visibility.</summary>
+        public readonly byte[] MainHalfGlow = new byte[HalvesW * HalvesH * 3];
         /// <summary>0089. The main view's <see cref="DistanceFade"/>: its edge and band
         /// in world units from the camera's X and Z, and its depth limit; all 0 is none.</summary>
         public float FadeEdge, FadeBand, FadeDepth;
+        /// <summary>Main-view fog samples depth divided by this scale. Geometry,
+        /// depth testing and distance fade retain their physical distances.</summary>
+        public float FogDepthScale = 1f;
         /// <summary>0085. The swell this frame was walked with: per wave, its
         /// wavenumber along X and Z, its height and its phase; and whether it is on.</summary>
         public readonly float[] Swell = new float[12];
@@ -629,7 +635,9 @@ public static class RetainedScene
         MirrorSerial = 0;
         Array.Clear(f.Halves);
         Array.Clear(f.MainHalves);
+        Array.Clear(f.MainHalfGlow);
         f.FadeEdge = f.FadeBand = f.FadeDepth = 0f;
+        f.FogDepthScale = 1f;
     }
 
     // ---- 0085: the mirror ----------------------------------------------------------
@@ -706,6 +714,20 @@ public static class RetainedScene
     /// reflected nor noted for the mirror. Empty outside a frame.</summary>
     public static Span<byte> CurrentMainHalves => Current.Serial == _serial ? Current.MainHalves : Span<byte>.Empty;
 
+    /// <summary>Colour an existing main-view map half without making it visible.
+    /// Components are additive 8-bit colour before atmospheric fog. The normal
+    /// depth, texture holes and distance fade still decide whether a pixel draws.
+    /// A port or source mod republishes this each frame; reflections are unchanged.</summary>
+    public static bool SetHalfGlow(int x, int z, int upper, byte red, byte green, byte blue)
+    {
+        if ((uint)x >= 80u || (uint)z >= 80u || (uint)upper >= 2u || Current.Serial != _serial) return false;
+        int at = ((z * 80 + x) * 2 + upper) * 3;
+        Current.MainHalfGlow[at] = red;
+        Current.MainHalfGlow[at + 1] = green;
+        Current.MainHalfGlow[at + 2] = blue;
+        return true;
+    }
+
     /// <summary>0089. The current frame's <see cref="DistanceFade"/>: <paramref name="edge"/>
     /// and <paramref name="band"/> in world units of horizontal distance from the camera
     /// (band 0 none), <paramref name="depth"/> the view depth everything is gone by (0
@@ -715,6 +737,16 @@ public static class RetainedScene
         var f = Current;
         if (f.Serial != _serial) return;
         f.FadeEdge = edge; f.FadeBand = band; f.FadeDepth = depth;
+    }
+
+    /// <summary>Extend only the current main view's atmospheric fog distances.
+    /// One preserves the native cue; invalid or shorter scales also use one.
+    /// Authored near/far records and their disabled-fog sentinel are unchanged.</summary>
+    public static void SetFogDepthScale(float scale)
+    {
+        var f = Current;
+        if (f.Serial != _serial) return;
+        f.FogDepthScale = float.IsFinite(scale) ? Math.Max(1f, scale) : 1f;
     }
 
     /// <summary>One model's triangles, in world space, to the current frame.</summary>
@@ -861,6 +893,12 @@ public static class RetainedScene
         /// bias wraps the table's unsigned test, so it has a near end too.</summary>
         public float Near;
         public uint Rgbc, Material;
+        /// <summary>Optional RGB mix after texture, lighting and fog, before output
+        /// quantization. Low24bits are target R/G/B; strength0 retains the original
+        /// colour. Captured per instance, including mirror copies; never changes
+        /// texture holes, alpha, depth, materials or the normal/shadow pass.</summary>
+        public uint ColourMixRgb;
+        public float ColourMix;
         /// <summary>Where the vertices come from: 0, the frame's <see cref="Frame.Verts"/>
         /// at <see cref="VertBase"/>; otherwise one past the first texel in
         /// <see cref="PoseStore"/>, a rigid model's vertices, or with

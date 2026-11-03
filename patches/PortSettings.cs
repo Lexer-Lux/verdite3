@@ -218,6 +218,7 @@ public static class PortSettings
     public static readonly PortSetting RenderDist = new()
     {
         Key = "kf3.renderdistance", Envs = ["KF3_RENDERDIST"], Label = "kf3scene.fartiles", Localized = true,
+        Page = World, MenuLabel = "VIEW DISTANCE",
         Steps = Reaches, MenuValue = v => v <= 0 ? "GAME'S" : Number(v),
         Default = EnhancedTiles, Live = () => RenderDistance.Tiles, Apply = v => RenderDistance.SetTiles((float)v),
         Stored = Stored.Float, Ui = Ui.None,
@@ -251,6 +252,10 @@ public static class PortSettings
     /// <summary>2D is the twin sticks, the left one walking and strafing; 3D is one
     /// stick, as tank controls are: the left stick walking and turning as the D-pad
     /// does, the right stick unused (Analog.Tank). A part of <see cref="ControlsRow"/>.</summary>
+    public static readonly PortSetting SeparateRunInput = Switch(SeparateRun.Key, "KF3_SEPARATERUN", "Separate run input",
+        null, null, () => SeparateRun.Enabled, v => SeparateRun.Enabled = v, false,
+        tip: "Uses the Run binding instead of holding Interact. The Run binding also goes back in menus.");
+
     public static readonly PortSetting Controls = new()
     {
         Key = Analog.ControlsKey, Envs = ["KF3_TANK"], Label = "Controls",
@@ -301,7 +306,7 @@ public static class PortSettings
         Tip = "How fast enemies turn to follow you, as a multiple of the game's own speed. Higher makes them harder to circle around.",
         Page = Gameplay, MenuLabel = "ENEMY TURN", Steps = [1, 1.25, 1.5, 1.75, 2, 2.2, 2.5, 3, 4, 5, 6, 8],
         MenuValue = v => v <= EnemyTurn.Min ? "ORIGINAL" : "X" + Number(v),
-        Default = EnemyTurn.Min, Live = () => EnemyTurn.Multiplier,
+        Default = EnemyTurn.DefaultMultiplier, Live = () => EnemyTurn.Multiplier,
         Apply = v => EnemyTurn.SetMultiplier((float)(Math.Round(v * 20) / 20)),
         Stored = Stored.Float, Ui = Ui.SliderFloat, Min = EnemyTurn.Min, Max = EnemyTurn.Max,
         SliderText = v => v <= EnemyTurn.Min ? "x1 (original)" : "x%.2f",
@@ -310,7 +315,7 @@ public static class PortSettings
     /// <summary>An engaged creature standing still keeps turning at the player
     /// (EnemyTurn.Track); the Settings window only, dimmed at x1, where it does nothing.</summary>
     public static readonly PortSetting EnemyTurnTrack = Switch(EnemyTurn.TrackKey, "KF3_ENEMYTURN_TRACK", "Track you while standing",
-        null, null, () => EnemyTurn.Track, EnemyTurn.SetTrack, true,
+        null, null, () => EnemyTurn.Track, EnemyTurn.SetTrack, false,
         tip: "An enemy standing still keeps turning to face you, instead of only between moves.",
         usable: () => EnemyTurn.Multiplier > EnemyTurn.Min);
 
@@ -383,15 +388,10 @@ public static class PortSettings
     /// <summary>ENHANCED is the reach and fade the user chose, 2026-10-06.</summary>
     public const double EnhancedTiles = 16, EnhancedFade = 3;
 
-    public static readonly PortSetting RenderDistanceRow = Combine("row.renderdistance", World, "RENDER DISTANCE", [RenderDist, RenderFade],
-        [0, 1], v => v == 0 ? "ORIGINAL" : v == 1 ? "ENHANCED" : "CUSTOM",
-        get => (get(RenderDist), get(RenderFade)) switch
-        {
-            (0, 0) => 0,
-            (EnhancedTiles, EnhancedFade) => 1,
-            _ => Custom,
-        },
-        (v, _) => v >= 1 ? [EnhancedTiles, EnhancedFade] : [0, 0]);
+    public static readonly PortSetting SmoothDistanceFade = Combine("row.distancefade", World, "SMOOTH DIST FADE", [RenderFade],
+        [0, 1], v => v == 0 ? "OFF" : "ON",
+        get => get(RenderFade) > 0 ? 1 : 0,
+        (v, get) => [v == 0 ? 0 : get(RenderFade) > 0 ? get(RenderFade) : EnhancedFade]);
 
     /// <summary>ENHANCED is the surface (the swell); FULL adds the reflections, the one
     /// that costs a second view. Murk is in neither while it is not good enough to ship.</summary>
@@ -420,10 +420,10 @@ public static class PortSettings
 
     /// <summary>A sensitivity, a part of a SENS row: kept as a float, as the Settings
     /// window's slider writes it.</summary>
-    static PortSetting Sensitivity(string key, string env, string label, Func<float> get, Action<float> set, double min, double max) => new()
+    static PortSetting Sensitivity(string key, string env, string label, Func<float> get, Action<float> set, double min, double max, double defaultValue = 1) => new()
     {
         Key = key, Envs = [env], Label = label, Steps = [1], MenuValue = Number,
-        Default = 1, Live = () => get(), Apply = v => set((float)Math.Clamp(v, min, max)),
+        Default = defaultValue, Live = () => get(), Apply = v => set((float)Math.Clamp(v, min, max)),
         Stored = Stored.Float, Ui = Ui.None, Min = min, Max = max,
     };
 
@@ -437,9 +437,9 @@ public static class PortSettings
             (v, _) => [v, v], usable);
 
     public static readonly PortSetting StickTurn = Sensitivity(Analog.TurnSensKey, "KF3_ANALOG_TURN", "Stick turn sensitivity",
-        () => Analog.TurnSens, v => Analog.TurnSens = v, 0.1, 3);
+        () => Analog.TurnSens, v => Analog.TurnSens = v, 0.1, 3, Analog.DefaultLookSensitivity);
     public static readonly PortSetting StickLook = Sensitivity(Analog.PitchSensKey, "KF3_ANALOG_PITCH", "Stick look sensitivity",
-        () => Analog.PitchSens, v => Analog.PitchSens = v, 0.1, 3);
+        () => Analog.PitchSens, v => Analog.PitchSens = v, 0.1, 3, Analog.DefaultLookSensitivity);
 
     /// <summary>The sticks' turn and look; X1 is the D-pad's speed. In 3D the look half
     /// does nothing, and the turn is the left stick's.</summary>
@@ -478,7 +478,7 @@ public static class PortSettings
     [
         Display, Resolution, Aspect, HudAnchor, FrameRateRow,
         TextureFilter, PerPixel, AmbientOcclusion, Shading,
-        RenderDistanceRow, Fog, Water,
+        RenderDist, SmoothDistanceFade, Fog, Water,
         AutoReloadOn, GearCompareOn, EnemyTurnSpeed,
         ControlsRow, InvertedCamera, StickSens, MouseSens, Gyro, RumbleRow,
     ];
@@ -490,7 +490,7 @@ public static class PortSettings
         Pacing, FrameRate, SmoothCamera, SmoothModels, TexScroll,
         Fog, RenderDist, RenderFade, Planar, MurkyWater, WaterWaves, AoNormals, AoQuality, EnhanceDistance,
         Controls, StickAccel, InvertedCamera, StickTurn, StickLook, MouseTurn, MouseLookSens, AutoReloadOn, AutoReloadSlot, GearCompareOn, EnemyTurnSpeed, EnemyTurnTrack, FocusPauseOn, MessageFade, MouseLook, InstantMouseLook, MenuPointer,
-        ItemTurnOn, ItemTurnGyro, GyroAimOn, RumbleOn, RumbleHd,
+        SeparateRunInput, ItemTurnOn, ItemTurnGyro, GyroAimOn, RumbleOn, RumbleHd,
     ];
 
     /// <summary>Every setting and every combined row, for the shell's <c>settings</c> verb.</summary>

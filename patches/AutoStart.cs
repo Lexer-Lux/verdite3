@@ -52,12 +52,7 @@ public static class AutoStart
         Event.AddListener<OverlayLoadedEvent>(e => _overlay = e.Name);
 
         // Active-low, bytes swapped against Controller's layout (Verdite2's Mouse.cs).
-        Event.AddListener<PadReadEvent>(e =>
-        {
-            if (e.Port != 0) return;
-            ushort press = _inject;
-            if (press != 0) e.Buttons &= (ushort)~(ushort)((press >> 8) | (press << 8));
-        });
+        Event.AddListener<PadReadEvent>(OnPadRead);
 
         Event.AddListener<VSyncEvent>(_ => Announce());
 
@@ -66,6 +61,19 @@ public static class AutoStart
         new Thread(Drive) { IsBackground = true, Name = "kf3-autostart" }.Start();
         Console.WriteLine(NewGame ? "[KF3] autostart: booting into a New Game"
                                   : $"[KF3] autostart: booting into slot {Slot}");
+    }
+
+    public static void OnPadRead(PadReadEvent e)
+    {
+        if (e.Port != 0 || Slot == 0 && !NewGame) return;
+        ushort press = _inject;
+        if (press != 0) e.Buttons &= (ushort)~(ushort)((press >> 8) | (press << 8));
+        // Disabled/missing private cards show a startup notice before the title
+        // choice is consumed. Acknowledge only that wait-for-any-press read;
+        // the following release loop must see no synthetic input.
+        if (!_done && _overlay == "game" && e.Context.RA == PadReadContext.BiosReturn
+            && PadReadContext.Caller(e) == 0x80027A80u)
+            e.Buttons &= unchecked((ushort)~0x0040);
     }
 
     /// <summary>Start through OPEN.EXE, until GAME.EXE takes over; then nothing.</summary>

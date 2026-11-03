@@ -26,6 +26,10 @@ public static class Runtime
 
     public static RunMode Mode { get; private set; } = RunMode.Retail;
 
+    /// <summary>Run without a host window, GL context or audio device. Intended for
+    /// isolated simulation checks; does not exercise hardware rendering.</summary>
+    public static bool Headless;
+
     public static void SetMode(RunMode mode)
     {
         Mode = mode;

@@ -9,6 +9,7 @@ public sealed class MemoryCard
 
     private readonly byte[] _d = new byte[CardSize];
     private readonly string _path;
+    public string FilePath => _path;
     public bool Enabled = true;
 
     //0106. Whether this session has copied the card to `<path>.bak` yet: done

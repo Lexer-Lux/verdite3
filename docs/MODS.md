@@ -10,6 +10,64 @@ one in the game's Mods panel, which writes `mods.<id>.enabled=True` under
 `[RecompOne]` in `interface.ini`. A disabled mod loads silently, and so does an
 enabled one that does not compile, apart from a `[Mods]` line on the console.
 
+## Settings controls for source mods
+
+`RecompOne.Runtime.Host.Window.ModSettings.SliderInt` and `.SliderFloat` put a
+wrapped label above a full-width native ImGui slider. Both accept the usual
+minimum/maximum, format and flags (default `AlwaysClamp`), with optional `help`
+beside the label. They keep labels and their bounded controls readable when the
+Mods popup is narrower than its preferred size. Values and persistence remain
+the mod's responsibility; the helpers add no settings store.
+
+The actual ModsPopup and mod DrawSettings routines were rendered without Host
+or audio at1280×720/scale1 and640×480/scale1.5. Smaller views retain vertical
+scrolling; the lower Poison/Hit controls and Sprint tooltip were viewed too.
+
+## Native bottom text for source mods
+
+`Kf3.NativeNotifications` shares the game's bottom font between source mods.
+`Hold(owner, glyphs)` displays a bounded native glyph string until `Cancel(owner)`;
+`Post(owner, glyphs, ticks=60)` and `PostText(owner, text, ticks=60)` queue finite
+notices. PostText accepts letters/spaces; use actual glyph bytes for item names.
+Each owner cancels only its own holds and queued/active notices. Vanilla queued
+or active banners take priority; held inspection text pauses finite notices.
+Queues/holds are capped at 32 each, strings at 24 glyphs, and finite durations at
+900 ticks. Successful load, new player and overlay transitions clear stale text.
+
+The API draws after native `80041D9C`, using native font `800261DC` and template
+`8007E570`. It reserves `12+40*glyphCount` bytes in the actual descriptor pointed
+to by `80199170` (cursor +8, limit +4), deferring if the arena is full. It restores
+CPU, scratch stack, brightness and GP current-primitive state; allocator and OT
+advances are kept. No new native message IDs or screen overlay are introduced.
+`tests/native_notifications` invokes that actual recompiled font and allocator
+without a host, checking packets, bounds, stack/CPU/GTE canaries, priority,
+owner cancellation, reset and world-tick duration. Gameplay behavior such as
+inspection names or poison notifications remains in separate user-library mods.
+
+## Native save identity for source mods
+
+`Kf3.NativeSaves.LastSuccessful` observes successful native load/save operations,
+including their actual BIOS filename and logical file1..15 on either card. It
+runs independently of optional mods, so enabling a mod during play does not lose
+the last observed save. Failed I/O preserves the previous successful identity;
+an ordinary area change preserves it, and a new playthrough clears it.
+
+The immutable identity contains the card index, logical file, native filename,
+actual card object's file path and that card object. `IsCurrentCardAvailable`
+requires the same enabled card object and path. A pending settings-path change
+does not become the identity of an already-open card. The observer does not read
+or write files or choose recovery behavior; source mods own those decisions.
+Controller labels for their prompts come from public
+`Verdite.Core.BindingTable.PadLabel`, the binding editor's existing label table.
+
+`python tests/native_saves/test_native_saves.py --game-build <compiled-game-dir>
+--dotnet <dotnet>` checks the compiled observer with actual native save/load and
+BIOS routines on temporary synthetic cards. It covers the saver choosing file1
+from a requested15, cardB file15, failed I/O, card replacement/disable, pending
+settings changes, late consumers and resets. CD/resource pumps and the save-icon
+readback are fixture boundaries. No host, audio, source mod or player card is
+used; complete world recovery and any mod's prompt need separate checks.
+
 ## Debug Tools (`mods/kf3debug`, `kf3.debug`)
 
 Built 2026-10-03 as a port of Verdite2's `mods/kf2debug`: the same structure,

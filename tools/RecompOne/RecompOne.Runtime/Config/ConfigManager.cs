@@ -86,6 +86,8 @@ public static class ConfigManager
         foreach (var p in panels)
             View.Panels[p.Name] = new PanelState { Open = p.IsOpen };
 
+        // Preserve the layout half of the file when no host context exists.
+        if (ImGui.GetCurrentContext() == IntPtr.Zero) return;
         var imguiIni = ImGui.SaveIniSettingsToMemory();
         var sb = new StringBuilder();
         sb.AppendLine("[RecompOne]");

@@ -116,7 +116,7 @@ public static class Launcher
             // to wait for, and on its own when there is not (a spec raised past the
             // one the player finished, never seen, or VERDITE2_SETUP=1; Onboarding.Due).
             // Either way the game starts after it.
-            var setup = Onboarding.Load(game.Name, Path.Combine(Paths.ContentConfig, "onboarding.json"));
+            var setup = Runtime.Headless ? null : Onboarding.Load(game.Name, Path.Combine(Paths.ContentConfig, "onboarding.json"));
             if (setup is not null && !Onboarding.Due(setup) && game.Env("SETUP") is not "1") setup = null;
 
             if (!File.Exists(gameDll)) BuildGame(discPath, gameDll, setup);
@@ -168,11 +168,11 @@ public static class Launcher
     static void BuildGame(string discPath, string gameDll, OnboardingSpec? setup)
     {
         var popup = new BuildProgressPopup();
-        PopupManager.Register(popup);
+        if (!Runtime.Headless) PopupManager.Register(popup);
 
         // With setup due, setup is what the player looks at, and the build's
         // progress is a strip at its foot read from the same fields.
-        OnboardingPopup? wizard = setup is null ? null : new OnboardingPopup(setup, Game.Name, inGame: false)
+        OnboardingPopup? wizard = Runtime.Headless || setup is null ? null : new OnboardingPopup(setup, Game.Name, inGame: false)
         {
             Build = () => new(popup.Status, popup.Step, popup.Steps, popup.Error, popup.Step >= popup.Steps),
         };
@@ -181,7 +181,7 @@ public static class Launcher
             PopupManager.Register(wizard);
             wizard.Open();
         }
-        else popup.Open();
+        else if (!Runtime.Headless) popup.Open();
 
         var generated = Path.Combine(Paths.Data, "generated");
         var log = new System.Text.StringBuilder();
@@ -224,20 +224,24 @@ public static class Launcher
         // The build, and setup if it is up: the game starts when both are done. A
         // failed build still waits for setup, whose strip now says the build
         // failed, so the player's choices are kept, and the failure popup follows.
-        while (work.IsAlive || wizard is { IsOpen: true }) Runtime.Pump();
+        if (Runtime.Headless) work.Join();
+        else while (work.IsAlive || wizard is { IsOpen: true }) Runtime.Pump();
 
         if (popup.Error is null)
         {
-            popup.Close();
+            if (!Runtime.Headless) popup.Close();
             return;
         }
-
-        wizard?.Close();
-        popup.Open();
 
         // The build log is the file a failed first run asks the player to send, so
         // it leads with the build that wrote it.
         File.WriteAllText(Paths.BuildLog, $"{Game.Name} {Ver.Full}\n\n{log}");
+
+        if (Runtime.Headless)
+            throw new InvalidOperationException($"Game build failed: {popup.Error}. See {Paths.BuildLog}");
+
+        wizard?.Close();
+        popup.Open();
 
         // Hold the failure on screen. Runtime.Pump exits the process itself when
         // the window is closed, so this is how the player reads the message and
@@ -248,6 +252,7 @@ public static class Launcher
     /// <summary>Setup with no build beside it: the game is already built.</summary>
     static void RunSetup(OnboardingPopup wizard)
     {
+        if (Runtime.Headless) return;
         PopupManager.Register(wizard);
         wizard.Open();
         while (wizard.IsOpen) Runtime.Pump();

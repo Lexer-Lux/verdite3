@@ -416,8 +416,7 @@ public sealed partial class GlCore
         BeginWorldLights();
         _gl.ActiveTexture(TextureUnit.Texture0 + HalvesUnit);
         _gl.BindTexture(TextureTarget.Texture2D, _halvesTex);
-        _gl.TexSubImage2D<byte>(TextureTarget.Texture2D, 0, 0, 0, RetainedScene.HalvesW, RetainedScene.HalvesH,
-            PixelFormat.RedInteger, PixelType.UnsignedByte, mirror ? f.MirrorHalves : f.MainHalves);
+        UploadHalves(mirror ? f.MirrorHalves : f.MainHalves, mirror ? null : f.MainHalfGlow);
         if (_uwHalfGate >= 0) _gl.Uniform1(_uwHalfGate, 1);
         if (_uwAniso >= 0) _gl.Uniform1(_uwAniso, (float)GteDepth.Anisotropy);
         if (_uwTrueColor >= 0) _gl.Uniform1(_uwTrueColor, GteDepth.TrueColor ? 1f : 0f);
@@ -474,7 +473,8 @@ public sealed partial class GlCore
                 if (_uwClipDq >= 0) _gl.Uniform2(_uwClipDq, (float)GteDepth.ProjDqa, GteDepth.ProjDqb / 4096f);
             }
         }
-        SetWorldView(r, v.CamX, v.CamY, v.CamZ, v.Tx, v.Ty, v.Tz, v.H, cx, cy, rt.Wide1x, rt.H, v.H, true, GlVram.Scale);
+        SetWorldView(r, v.CamX, v.CamY, v.CamZ, v.Tx, v.Ty, v.Tz, v.H, cx, cy, rt.Wide1x, rt.H, v.H, true, GlVram.Scale,
+                     mirror ? 1f : f.FogDepthScale);
         if (_uwModelGteC >= 0) _gl.Uniform2(_uwModelGteC, v.Cx, v.Cy);
         if (_uwNear >= 0) _gl.Uniform1(_uwNear, RetainedScene.MainNear);
         SendWorldLights(r, v.CamX, v.CamY, v.CamZ, v.Tx, v.Ty, v.Tz, cx, cy, v.H, false, 0f);
@@ -1323,8 +1323,7 @@ public sealed partial class GlCore
                        false, 0f, v.H, float.PositiveInfinity);
             _gl.ActiveTexture(TextureUnit.Texture0 + HalvesUnit);
             _gl.BindTexture(TextureTarget.Texture2D, _halvesTex);
-            _gl.TexSubImage2D<byte>(TextureTarget.Texture2D, 0, 0, 0, RetainedScene.HalvesW, RetainedScene.HalvesH,
-                PixelFormat.RedInteger, PixelType.UnsignedByte, f.MainHalves);
+            UploadHalves(f.MainHalves);
             _gl.ActiveTexture(TextureUnit.Texture0);
 
             _gl.UseProgram(_progWorldNrm);

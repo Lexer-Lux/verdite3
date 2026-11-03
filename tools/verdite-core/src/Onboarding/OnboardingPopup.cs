@@ -460,7 +460,7 @@ internal sealed class OnboardingPopup : Popup
             // selector's left edge and wrapped to its width, which is the row less the cost note.
             int now = _tiers[_catAt][g];
             ImGui.SetCursorPosX(labelW);
-            float textW = ImGui.GetContentRegionAvail().X - CostWidth();
+            float textW = ImGui.GetContentRegionAvail().X - CostWidth(group, now);
             ImGui.PushTextWrapPos(ImGui.GetCursorPosX() + textW);
             if (now < 0) Dim("verdite.setup.custom");
             else ImGui.TextWrapped(Localization.T(group.Tiers[span[now]].Desc));
@@ -489,10 +489,11 @@ internal sealed class OnboardingPopup : Popup
         string Name(int o) => o < 0 ? Localization.T("verdite.setup.keep")
             : group.Tiers[o].Label is { } key ? Localization.T(key) : GroupName(group, o);
 
-        int? index = Stepper(id, options.Select(Name).ToList(), at, out focused, CostWidth());
+        float costWidth = CostWidth(group, current);
+        int? index = Stepper(id, options.Select(Name).ToList(), at, out focused, costWidth);
         int? pick = index is { } i ? options[i] : null;
 
-        if (current >= 0 && current < group.Tiers.Count && group.Tiers[span[current]].Cost)
+        if (costWidth > 0)
         {
             ImGui.SameLine();
             ImGui.AlignTextToFramePadding();
@@ -548,8 +549,9 @@ internal sealed class OnboardingPopup : Popup
     }
 
     /// <summary>The room a selector row keeps at its right for the GPU cost note, with the gap before it.</summary>
-    static float CostWidth() =>
-        ImGui.CalcTextSize(Localization.T("verdite.setup.gpucost")).X + ImGui.GetStyle().ItemSpacing.X;
+    static float CostWidth(SetupGroup group, int current) =>
+        current >= 0 && current < group.Tiers.Count && group.Tiers[Spans(group)[current]].Cost
+            ? ImGui.CalcTextSize(Localization.T("verdite.setup.gpucost")).X + ImGui.GetStyle().ItemSpacing.X : 0;
 
     /// <summary>
     /// A stepper's end, "&lt;" or ">": a frame square of <paramref name="size"/> with its chevron,
@@ -766,9 +768,10 @@ internal sealed class OnboardingPopup : Popup
             var page = _spec.Pages[p];
             var choice = _pages[p];
             ImGui.SeparatorText(Localization.T(page.Title));
-            Line(page.Label, choice.Option >= 0 && choice.Option < page.Options.Count
-                ? OptionLabel(page.Options[choice.Option])
-                : Localization.T("verdite.setup.keep"));
+            if (page.Options.Count > 0)
+                Line(page.Label, choice.Option >= 0 && choice.Option < page.Options.Count
+                    ? OptionLabel(page.Options[choice.Option])
+                    : Localization.T("verdite.setup.keep"));
             if (page.Slider is { } s) Line(s.Label, SliderText(s, ValueOf(s, choice)));
         }
     }

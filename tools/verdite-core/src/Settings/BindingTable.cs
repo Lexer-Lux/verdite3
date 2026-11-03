@@ -194,8 +194,9 @@ public static class BindingTable
     }
 
     /// <summary>InputManager's own encoding: face and shoulder buttons are their
-    /// SDL index, the triggers are 100/101, the stick directions 102-109.</summary>
-    static string PadLabel(int b) => b switch
+    /// SDL index, the triggers are 100/101, the stick directions 102-109.
+    /// Public so mod prompts can use the same names as the binding editor.</summary>
+    public static string PadLabel(int b) => b switch
     {
         0 => "Cross (A)",
         1 => "Circle (B)",

@@ -468,7 +468,8 @@ public static class ModLoader
             if (!byId.TryAdd(mod.Info.Id, mod))
                 Console.Error.WriteLine($"[Mods] duplicate mod id {mod.Info.Id} at {mod.Info.SourcePath}, skipping");
 
-        var queue = byId.Values.OrderBy(m => m.Info.Id, StringComparer.OrdinalIgnoreCase).ToList();
+        var queue = byId.Values.OrderBy(m => Runtime.View.GetInt($"mods.{m.Info.Id}.priority", 0))
+            .ThenBy(m => m.Info.Id, StringComparer.OrdinalIgnoreCase).ToList();
         foreach (var mod in queue.ToList())
         {
             var missing = mod.Info.Dependencies.FirstOrDefault(d => !byId.ContainsKey(d));

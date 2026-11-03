@@ -125,6 +125,8 @@ public sealed class InputSection : ISettingsSection
 
     public void Draw()
     {
+        KeyLayoutPage.Draw();
+        BindingActions["L3"] = SeparateRun.Enabled ? "run; back in menus" : "the game does not read it";
         if (!ImGui.BeginTabBar("##kf3-input")) return;
 
         Tab(Localization.T("settings.input.keyboard"), DrawKeyboard);
@@ -161,9 +163,6 @@ public sealed class InputSection : ISettingsSection
 
     void DrawKeyboard()
     {
-        KeyLayoutPage.Draw();
-        ImGui.Spacing();
-
         BindingTable.Draw(gamepad: false, ref _keyRow, ref _padAdd, ActionColumn, BindingActions);
         ActionNote();
 

@@ -142,6 +142,13 @@ public static class HostWindow
         Pgxp.Pgxp.Load();
         Interp.Interp.Load();
 
+        if (Runtime.Headless)
+        {
+            Console.WriteLine("[Host] headless: no window, no gl context");
+            _headless = true;
+            return;
+        }
+
         foreach (var api in ApiChain())
             try
             {
@@ -1191,6 +1198,7 @@ public static class HostWindow
         var imgui = Profiler.Begin(Profiler.ImGuiRender);
         _imgui.Render();
         Profiler.End(imgui);
+        ScreenHud.Render(gl, fbDef.X, fbDef.Y);
     }
 
     private static void DrawDockspace()

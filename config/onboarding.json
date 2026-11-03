@@ -1,6 +1,6 @@
 {
   "_comment": "The first-run setup's groups and tiers; read by Verdite Core's Onboarding (tools/verdite-core/src/Onboarding). See \"Onboarding\" in docs/SETTINGS.md.",
-  "version": 1,
+  "version": 2,
   "welcome": "kf3.setup.welcome",
   "welcomeAgain": "kf3.setup.welcomeagain",
   "existing": "kf3.",
@@ -11,9 +11,12 @@
     "kf3.pacing": "1",
     "kf3.fps": "144",
     "kf3.analog.on": "1",
+    "kf3.analog.turn": "3",
+    "kf3.analog.pitch": "3",
     "kf3.controls": "0",
     "kf3.analog.accel": "0",
-    "kf3.enemyturn": "1",
+    "kf3.enemyturn": "3",
+    "kf3.enemyturn.track": "0",
     "kf3.rumble.on": "1",
     "kf3.rumble.hd": "1",
     "kf3.gyroaim.on": "1",
@@ -35,7 +38,64 @@
     "kf3.renderdistance": "16",
     "kf3.renderdistance.fade": "3",
     "kf3.gearcompare.enabled": "1",
-    "kf3.autoreload.enabled": "1"
+    "kf3.autoreload.enabled": "1",
+    "input.keys.Up": "W",
+    "input.keys.Down": "S",
+    "input.keys.L1": "A",
+    "input.keys.R1": "D",
+    "input.keys.Left": "Left",
+    "input.keys.Right": "Right",
+    "input.keys.L2": "",
+    "input.keys.R2": "",
+    "input.keys.Square": "Space",
+    "input.keys.Cross": "F",
+    "input.keys.Triangle": "Q",
+    "input.keys.Circle": "Tab",
+    "input.keys.Start": "Enter",
+    "input.keys.Select": "ShiftRight",
+    "input.keys.L3": "",
+    "input.keys.R3": "",
+    "input.pad.Cross": "0",
+    "input.pad.Circle": "1",
+    "input.pad.Square": "2",
+    "input.pad.Triangle": "3",
+    "input.pad.L1": "9",
+    "input.pad.R1": "10",
+    "input.pad.L2": "100",
+    "input.pad.R2": "101",
+    "input.pad.L3": "7",
+    "input.pad.R3": "8",
+    "input.pad.Start": "6",
+    "input.pad.Select": "4",
+    "input.pad.Up": "11,104",
+    "input.pad.Down": "12,105",
+    "input.pad.Left": "13,102",
+    "input.pad.Right": "14,103",
+    "input.pad.LeftStickX": "0",
+    "input.pad.LeftStickY": "1",
+    "input.pad.RightStickX": "2",
+    "input.pad.RightStickY": "3",
+    "input.padanalog.Cross": "0",
+    "input.padanalog.Circle": "1",
+    "input.padanalog.Square": "2",
+    "input.padanalog.Triangle": "3",
+    "input.padanalog.L1": "9",
+    "input.padanalog.R1": "10",
+    "input.padanalog.L2": "100",
+    "input.padanalog.R2": "101",
+    "input.padanalog.L3": "7",
+    "input.padanalog.R3": "8",
+    "input.padanalog.Start": "6",
+    "input.padanalog.Select": "4",
+    "input.padanalog.Up": "11",
+    "input.padanalog.Down": "12",
+    "input.padanalog.Left": "13",
+    "input.padanalog.Right": "14",
+    "input.padanalog.LeftStickX": "0",
+    "input.padanalog.LeftStickY": "1",
+    "input.padanalog.RightStickX": "2",
+    "input.padanalog.RightStickY": "3",
+    "kf3.controls.separaterun": "0"
   },
   "display": [
     {
@@ -294,6 +354,201 @@
       "id": "controls",
       "label": "kf3.setup.controls",
       "groups": [
+        {
+          "id": "bindings",
+          "label": "kf3.setup.bindingpreset",
+          "tiers": [
+            {
+              "label": "kf3.setup.bindings.classic",
+              "desc": "kf3.setup.bindings.classic.desc",
+              "set": {
+                "input.keys.Up": "W",
+                "input.keys.Down": "S",
+                "input.keys.L1": "A",
+                "input.keys.R1": "D",
+                "input.keys.Left": "Left",
+                "input.keys.Right": "Right",
+                "input.keys.L2": "",
+                "input.keys.R2": "",
+                "input.keys.Square": "Space",
+                "input.keys.Cross": "F",
+                "input.keys.Triangle": "Q",
+                "input.keys.Circle": "Tab",
+                "input.keys.Start": "Enter",
+                "input.keys.Select": "ShiftRight",
+                "input.keys.L3": "",
+                "input.keys.R3": "",
+                "input.pad.Cross": "0",
+                "input.pad.Circle": "1",
+                "input.pad.Square": "2",
+                "input.pad.Triangle": "3",
+                "input.pad.L1": "9",
+                "input.pad.R1": "10",
+                "input.pad.L2": "100",
+                "input.pad.R2": "101",
+                "input.pad.L3": "7",
+                "input.pad.R3": "8",
+                "input.pad.Start": "6",
+                "input.pad.Select": "4",
+                "input.pad.Up": "11,104",
+                "input.pad.Down": "12,105",
+                "input.pad.Left": "13,102",
+                "input.pad.Right": "14,103",
+                "input.pad.LeftStickX": "0",
+                "input.pad.LeftStickY": "1",
+                "input.pad.RightStickX": "2",
+                "input.pad.RightStickY": "3",
+                "input.padanalog.Cross": "0",
+                "input.padanalog.Circle": "1",
+                "input.padanalog.Square": "2",
+                "input.padanalog.Triangle": "3",
+                "input.padanalog.L1": "9",
+                "input.padanalog.R1": "10",
+                "input.padanalog.L2": "100",
+                "input.padanalog.R2": "101",
+                "input.padanalog.L3": "7",
+                "input.padanalog.R3": "8",
+                "input.padanalog.Start": "6",
+                "input.padanalog.Select": "4",
+                "input.padanalog.Up": "11",
+                "input.padanalog.Down": "12",
+                "input.padanalog.Left": "13",
+                "input.padanalog.Right": "14",
+                "input.padanalog.LeftStickX": "0",
+                "input.padanalog.LeftStickY": "1",
+                "input.padanalog.RightStickX": "2",
+                "input.padanalog.RightStickY": "3",
+                "kf3.controls.separaterun": "0"
+              }
+            },
+            {
+              "label": "kf3.setup.bindings.classic",
+              "desc": "kf3.setup.bindings.classic.desc",
+              "set": {
+                "input.keys.Up": "W",
+                "input.keys.Down": "S",
+                "input.keys.L1": "A",
+                "input.keys.R1": "D",
+                "input.keys.Left": "Left",
+                "input.keys.Right": "Right",
+                "input.keys.L2": "",
+                "input.keys.R2": "",
+                "input.keys.Square": "Space",
+                "input.keys.Cross": "F",
+                "input.keys.Triangle": "Q",
+                "input.keys.Circle": "Tab",
+                "input.keys.Start": "Enter",
+                "input.keys.Select": "ShiftRight",
+                "input.keys.L3": "",
+                "input.keys.R3": "",
+                "input.pad.Cross": "0",
+                "input.pad.Circle": "1",
+                "input.pad.Square": "2",
+                "input.pad.Triangle": "3",
+                "input.pad.L1": "9",
+                "input.pad.R1": "10",
+                "input.pad.L2": "100",
+                "input.pad.R2": "101",
+                "input.pad.L3": "7",
+                "input.pad.R3": "8",
+                "input.pad.Start": "6",
+                "input.pad.Select": "4",
+                "input.pad.Up": "11,104",
+                "input.pad.Down": "12,105",
+                "input.pad.Left": "13,102",
+                "input.pad.Right": "14,103",
+                "input.pad.LeftStickX": "0",
+                "input.pad.LeftStickY": "1",
+                "input.pad.RightStickX": "2",
+                "input.pad.RightStickY": "3",
+                "input.padanalog.Cross": "0",
+                "input.padanalog.Circle": "1",
+                "input.padanalog.Square": "2",
+                "input.padanalog.Triangle": "3",
+                "input.padanalog.L1": "9",
+                "input.padanalog.R1": "10",
+                "input.padanalog.L2": "100",
+                "input.padanalog.R2": "101",
+                "input.padanalog.L3": "7",
+                "input.padanalog.R3": "8",
+                "input.padanalog.Start": "6",
+                "input.padanalog.Select": "4",
+                "input.padanalog.Up": "11",
+                "input.padanalog.Down": "12",
+                "input.padanalog.Left": "13",
+                "input.padanalog.Right": "14",
+                "input.padanalog.LeftStickX": "0",
+                "input.padanalog.LeftStickY": "1",
+                "input.padanalog.RightStickX": "2",
+                "input.padanalog.RightStickY": "3",
+                "kf3.controls.separaterun": "0"
+              }
+            },
+            {
+              "label": "kf3.setup.bindings.modern",
+              "desc": "kf3.setup.bindings.modern.desc",
+              "set": {
+                "input.keys.Up": "W",
+                "input.keys.Down": "S",
+                "input.keys.L1": "A",
+                "input.keys.R1": "D",
+                "input.keys.Left": "Left",
+                "input.keys.Right": "Right",
+                "input.keys.L2": "",
+                "input.keys.R2": "",
+                "input.keys.Square": "Space",
+                "input.keys.Cross": "E",
+                "input.keys.Triangle": "Q",
+                "input.keys.Circle": "Tab",
+                "input.keys.Start": "Enter",
+                "input.keys.Select": "ShiftRight",
+                "input.keys.L3": "ShiftLeft",
+                "input.keys.R3": "",
+                "input.pad.Cross": "0",
+                "input.pad.Circle": "3",
+                "input.pad.Square": "10,101",
+                "input.pad.Triangle": "9,100",
+                "input.pad.L1": "",
+                "input.pad.R1": "",
+                "input.pad.L2": "",
+                "input.pad.R2": "",
+                "input.pad.L3": "1",
+                "input.pad.R3": "8",
+                "input.pad.Start": "6",
+                "input.pad.Select": "4",
+                "input.pad.Up": "11,104",
+                "input.pad.Down": "12,105",
+                "input.pad.Left": "13,102",
+                "input.pad.Right": "14,103",
+                "input.pad.LeftStickX": "0",
+                "input.pad.LeftStickY": "1",
+                "input.pad.RightStickX": "2",
+                "input.pad.RightStickY": "3",
+                "input.padanalog.Cross": "0",
+                "input.padanalog.Circle": "3",
+                "input.padanalog.Square": "10,101",
+                "input.padanalog.Triangle": "9,100",
+                "input.padanalog.L1": "",
+                "input.padanalog.R1": "",
+                "input.padanalog.L2": "",
+                "input.padanalog.R2": "",
+                "input.padanalog.L3": "1",
+                "input.padanalog.R3": "8",
+                "input.padanalog.Start": "6",
+                "input.padanalog.Select": "4",
+                "input.padanalog.Up": "11",
+                "input.padanalog.Down": "12",
+                "input.padanalog.Left": "13",
+                "input.padanalog.Right": "14",
+                "input.padanalog.LeftStickX": "0",
+                "input.padanalog.LeftStickY": "1",
+                "input.padanalog.RightStickX": "2",
+                "input.padanalog.RightStickY": "3",
+                "kf3.controls.separaterun": "1"
+              }
+            }
+          ]
+        },
         {
           "id": "movement",
           "label": "kf3.setup.movement",
@@ -633,7 +888,7 @@
             "kf3.controls": null,
             "kf3.analog.accel": "1"
           },
-          "value": 2.2
+          "value": null
         }
       ],
       "slider": {
@@ -649,18 +904,17 @@
       "presets": [
         {
           "option": 0,
-          "value": 1
+          "value": 3
         },
         {
           "option": 0,
-          "value": 1
+          "value": 3
         },
         {
           "option": 1,
-          "value": 1
+          "value": 3
         }
-      ],
-      "follows": "gameplay"
+      ]
     }
   ],
   "strings": {
@@ -909,36 +1163,6 @@
       "pt-BR": "A câmera, a bússola e os medidores, as criaturas e os objetos interpolados entre os 15 passos por segundo do jogo. A imagem fica até um passo atrás do jogo.",
       "es-419": "La cámara, la brújula y los indicadores, las criaturas y los objetos interpolados entre los 15 pasos por segundo del juego. La imagen va hasta un paso detrás del juego."
     },
-    "kf3.setup.movement": {
-      "en": "Movement",
-      "pt-BR": "Movimento",
-      "es-419": "Movimiento"
-    },
-    "kf3.setup.movement.0": {
-      "en": "The D-pad only, as the PlayStation had. The analog sticks do nothing.",
-      "pt-BR": "Só o direcional, como no PlayStation. Os analógicos não fazem nada.",
-      "es-419": "Solo la cruceta, como en la PlayStation. Las palancas no hacen nada."
-    },
-    "kf3.setup.movement.0.name": {
-      "en": "D-pad only",
-      "pt-BR": "Só o direcional",
-      "es-419": "Solo la cruceta"
-    },
-    "kf3.setup.movement.1": {
-      "en": "The analog sticks are on. How they turn you is chosen on the turning page.",
-      "pt-BR": "Os analógicos estão ligados. Como eles viram você é escolhido na página de virada.",
-      "es-419": "Las palancas analógicas están activadas. Cómo te giran se elige en la página de giro."
-    },
-    "kf3.setup.movement.1.name": {
-      "en": "Analog sticks",
-      "pt-BR": "Analógicos",
-      "es-419": "Palancas analógicas"
-    },
-    "kf3.setup.movement.2": {
-      "en": "The analog sticks are on. How they turn you is chosen on the turning page.",
-      "pt-BR": "Os analógicos estão ligados. Como eles viram você é escolhido na página de virada.",
-      "es-419": "Las palancas analógicas están activadas. Cómo te giran se elige en la página de giro."
-    },
     "kf3.setup.presentation": {
       "en": "Presentation",
       "pt-BR": "Apresentação",
@@ -954,31 +1178,6 @@
       "pt-BR": "A resolução em que a imagem 3D é desenhada, antes de ser ajustada à janela. 240p é a do PlayStation.",
       "es-419": "La resolución a la que se dibuja la imagen 3D, antes de ajustarse a la ventana. 240p es la de la PlayStation."
     },
-    "kf3.setup.turning": {
-      "en": "Turning and difficulty",
-      "pt-BR": "Virada e dificuldade",
-      "es-419": "Giro y dificultad"
-    },
-    "kf3.setup.turning.2d": {
-      "en": "Twin stick (2D)",
-      "pt-BR": "Dois analógicos (2D)",
-      "es-419": "Dos palancas (2D)"
-    },
-    "kf3.setup.turning.2d.desc": {
-      "en": "The left stick walks and strafes, the right stick turns and looks, at the D-pad's rate. You turn at the original rate.",
-      "pt-BR": "O analógico esquerdo anda e se desloca de lado, o direito vira e olha, na velocidade do direcional. Você vira na velocidade original.",
-      "es-419": "La palanca izquierda camina y se desplaza de lado, la derecha gira y mira, a la velocidad de la cruceta. Giras a la velocidad original."
-    },
-    "kf3.setup.turning.2daccel": {
-      "en": "Twin stick (2D) with acceleration",
-      "pt-BR": "Dois analógicos (2D) com aceleração",
-      "es-419": "Dos palancas (2D) con aceleración"
-    },
-    "kf3.setup.turning.2daccel.desc": {
-      "en": "As twin stick, but holding the right stick out speeds the turn up to 2.2 times. Enemy turn speed rises to x2.2 to match.",
-      "pt-BR": "Como dois analógicos, mas manter o analógico direito inclinado acelera a virada em até 2,2 vezes. A velocidade de giro dos inimigos sobe para x2,2 para acompanhar.",
-      "es-419": "Como dos palancas, pero mantener la palanca derecha inclinada acelera el giro hasta 2.2 veces. La velocidad de giro de los enemigos sube a x2.2 para igualarla."
-    },
     "kf3.setup.enemyturn": {
       "en": "Enemy turn speed",
       "pt-BR": "Velocidade de giro dos inimigos",
@@ -993,36 +1192,6 @@
       "en": "x1 (original)",
       "pt-BR": "x1 (original)",
       "es-419": "x1 (original)"
-    },
-    "kf3.setup.turning.controls": {
-      "en": "Controls",
-      "pt-BR": "Controles",
-      "es-419": "Controles"
-    },
-    "kf3.setup.turning.port": {
-      "en": "The sticks turn you at that same rate. Look acceleration on the right stick speeds the turn up to 2.2 times while you hold it out, and mouse look turns as fast as you move the mouse. A creature at its original pace can then be circled without landing a hit.",
-      "pt-BR": "Os analógicos viram você nessa mesma velocidade. A aceleração de visão no analógico direito acelera a virada em até 2,2 vezes enquanto você o mantém inclinado, e a visão com o mouse vira tão rápido quanto você move o mouse. Uma criatura no ritmo original pode então ser contornada sem acertar um golpe.",
-      "es-419": "Las palancas te giran a esa misma velocidad. La aceleración de vista en la palanca derecha acelera el giro hasta 2.2 veces mientras la mantienes inclinada, y la vista con mouse gira tan rápido como muevas el mouse. Una criatura a su ritmo original puede entonces rodearse sin que acierte un golpe."
-    },
-    "kf3.setup.turning.problem": {
-      "en": "King's Field's fights are balanced around how fast you turn. On the PlayStation you turned at one fixed rate, and every creature was tuned to keep up with it.",
-      "pt-BR": "As lutas de King's Field são equilibradas em torno da velocidade com que você vira. No PlayStation você virava em uma velocidade fixa, e cada criatura foi ajustada para acompanhá-la.",
-      "es-419": "Los combates de King's Field están equilibrados en torno a la velocidad con que giras. En la PlayStation girabas a una velocidad fija, y cada criatura estaba ajustada para seguirla."
-    },
-    "kf3.setup.turning.solution": {
-      "en": "The answer is to let creatures turn faster when they turn toward you; their wandering keeps the game's pace. Choose how you will control the game, and the enemy turn speed below follows it. You can set it yourself.",
-      "pt-BR": "A resposta é deixar as criaturas virarem mais rápido quando se voltam para você; a perambulação delas mantém o ritmo do jogo. Escolha como você vai controlar o jogo, e a velocidade de giro dos inimigos abaixo acompanha a escolha. Você também pode defini-la por conta própria.",
-      "es-419": "La respuesta es dejar que las criaturas giren más rápido cuando se vuelven hacia ti; su deambular mantiene el ritmo del juego. Elige cómo vas a controlar el juego, y la velocidad de giro de los enemigos de abajo la sigue. También puedes ajustarla tú mismo."
-    },
-    "kf3.setup.turning.tank": {
-      "en": "Tank controls (3D)",
-      "pt-BR": "Controles de tanque (3D)",
-      "es-419": "Controles de tanque (3D)"
-    },
-    "kf3.setup.turning.tank.desc": {
-      "en": "One stick walks and turns, as the D-pad does; L1 and R1 strafe. You turn at the original rate.",
-      "pt-BR": "Um analógico anda e vira, como o direcional; L1 e R1 se deslocam de lado. Você vira na velocidade original.",
-      "es-419": "Una palanca camina y gira, como la cruceta; L1 y R1 te desplazan de lado. Giras a la velocidad original."
     },
     "kf3.setup.view": {
       "en": "View distance",
@@ -1103,6 +1272,116 @@
       "en": "Windowed",
       "pt-BR": "Em janela",
       "es-419": "En ventana"
+    },
+    "kf3.setup.bindings.classic": {
+      "en": "Classic Controls",
+      "pt-BR": "Controles clássicos",
+      "es-419": "Controles clásicos"
+    },
+    "kf3.setup.bindings.modern": {
+      "en": "Modern Controls",
+      "pt-BR": "Controles modernos",
+      "es-419": "Controles modernos"
+    },
+    "kf3.setup.movement": {
+      "en": "Movement",
+      "pt-BR": "Movimento",
+      "es-419": "Movimiento"
+    },
+    "kf3.setup.movement.0": {
+      "en": "The D-pad only, as the PlayStation had. The analog sticks do nothing.",
+      "pt-BR": "Só o direcional, como no PlayStation. Os analógicos não fazem nada.",
+      "es-419": "Solo la cruceta, como en la PlayStation. Las palancas no hacen nada."
+    },
+    "kf3.setup.movement.0.name": {
+      "en": "D-pad only",
+      "pt-BR": "Só o direcional",
+      "es-419": "Solo la cruceta"
+    },
+    "kf3.setup.movement.1": {
+      "en": "The analog sticks are on. How they turn you is chosen on the turning page.",
+      "pt-BR": "Os analógicos estão ligados. Como eles viram você é escolhido na página de virada.",
+      "es-419": "Las palancas analógicas están activadas. Cómo te giran se elige en la página de giro."
+    },
+    "kf3.setup.movement.1.name": {
+      "en": "Analog sticks",
+      "pt-BR": "Analógicos",
+      "es-419": "Palancas analógicas"
+    },
+    "kf3.setup.movement.2": {
+      "en": "The analog sticks are on. How they turn you is chosen on the turning page.",
+      "pt-BR": "Os analógicos estão ligados. Como eles viram você é escolhido na página de virada.",
+      "es-419": "Las palancas analógicas están activadas. Cómo te giran se elige en la página de giro."
+    },
+    "kf3.setup.bindingpreset": {
+      "en": "Control preset",
+      "pt-BR": "Predefinição de controles",
+      "es-419": "Preajuste de controles"
+    },
+    "kf3.setup.bindings.classic.desc": {
+      "en": "The upstream port's keyboard and controller bindings.",
+      "pt-BR": "Os controles de teclado e controle originais do port.",
+      "es-419": "Los controles de teclado y mando originales del port."
+    },
+    "kf3.setup.bindings.modern.desc": {
+      "en": "RB/RT attack, LB/LT cast, Circle run, Cross interact, Triangle inventory, Options card/options. E interacts; Shift runs.",
+      "pt-BR": "RB/RT atacam, LB/LT lançam magia, Círculo corre, X interage, Triângulo abre o inventário, Options abre opções. E interage; Shift corre.",
+      "es-419": "RB/RT atacan, LB/LT lanzan magia, Círculo corre, X interactúa, Triángulo abre el inventario, Options abre opciones. E interactúa; Shift corre."
+    },
+    "kf3.setup.turning": {
+      "en": "Turning and difficulty",
+      "pt-BR": "Virada e dificuldade",
+      "es-419": "Giro y dificultad"
+    },
+    "kf3.setup.turning.2d": {
+      "en": "Twin stick (2D)",
+      "pt-BR": "Dois analógicos (2D)",
+      "es-419": "Dos palancas (2D)"
+    },
+    "kf3.setup.turning.2d.desc": {
+      "en": "The left stick walks and strafes; the right stick turns and looks. Your sensitivity and easing stay unchanged.",
+      "pt-BR": "O analógico esquerdo anda e se desloca de lado; o direito vira e olha. A sensibilidade e a suavização permanecem inalteradas.",
+      "es-419": "La palanca izquierda camina y se desplaza de lado; la derecha gira y mira. La sensibilidad y el suavizado no cambian."
+    },
+    "kf3.setup.turning.2daccel": {
+      "en": "Twin stick (2D) with acceleration",
+      "pt-BR": "Dois analógicos (2D) com aceleração",
+      "es-419": "Dos palancas (2D) con aceleración"
+    },
+    "kf3.setup.turning.2daccel.desc": {
+      "en": "Twin-stick movement, with faster right-stick turns while held out. Your sensitivity, easing and enemy turn speed stay unchanged.",
+      "pt-BR": "Movimento com dois analógicos, com giro mais rápido ao manter o direito inclinado. A sensibilidade, a suavização e o giro dos inimigos permanecem inalterados.",
+      "es-419": "Movimiento con dos palancas, con giro más rápido al mantener inclinada la derecha. La sensibilidad, el suavizado y el giro de los enemigos no cambian."
+    },
+    "kf3.setup.turning.controls": {
+      "en": "Camera style",
+      "pt-BR": "Estilo da câmera",
+      "es-419": "Estilo de cámara"
+    },
+    "kf3.setup.turning.port": {
+      "en": "Camera sensitivity and easing keep your current settings. Look acceleration can speed up right-stick turns while held out.",
+      "pt-BR": "A sensibilidade e a suavização da câmera mantêm suas configurações atuais. A aceleração pode aumentar a velocidade de giro ao manter o analógico direito inclinado.",
+      "es-419": "La sensibilidad y el suavizado de la cámara conservan tus ajustes actuales. La aceleración puede aumentar la velocidad de giro al mantener inclinada la palanca derecha."
+    },
+    "kf3.setup.turning.problem": {
+      "en": "King's Field's fights are balanced around how fast you turn. On the PlayStation you turned at one fixed rate, and every creature was tuned to keep up with it.",
+      "pt-BR": "As lutas de King's Field são equilibradas em torno da velocidade com que você vira. No PlayStation você virava em uma velocidade fixa, e cada criatura foi ajustada para acompanhá-la.",
+      "es-419": "Los combates de King's Field están equilibrados en torno a la velocidad con que giras. En la PlayStation girabas a una velocidad fija, y cada criatura estaba ajustada para seguirla."
+    },
+    "kf3.setup.turning.solution": {
+      "en": "Enemy turn speed changes how quickly creatures turn toward you; wandering keeps the game's pace. Adjust it independently below.",
+      "pt-BR": "A velocidade de giro dos inimigos muda a rapidez com que as criaturas se voltam para você; a perambulação mantém o ritmo do jogo. Ajuste-a separadamente abaixo.",
+      "es-419": "La velocidad de giro de los enemigos cambia la rapidez con que las criaturas se vuelven hacia ti; su deambular mantiene el ritmo del juego. Ajústala por separado abajo."
+    },
+    "kf3.setup.turning.tank": {
+      "en": "Tank controls (3D)",
+      "pt-BR": "Controles de tanque (3D)",
+      "es-419": "Controles de tanque (3D)"
+    },
+    "kf3.setup.turning.tank.desc": {
+      "en": "The left stick walks and turns. Strafing uses the game's shoulder actions; the right stick is unused.",
+      "pt-BR": "O analógico esquerdo anda e vira. O deslocamento lateral usa as ações de ombro do jogo; o analógico direito não é usado.",
+      "es-419": "La palanca izquierda camina y gira. El desplazamiento lateral usa las acciones de hombro del juego; la palanca derecha no se usa."
     }
   }
 }

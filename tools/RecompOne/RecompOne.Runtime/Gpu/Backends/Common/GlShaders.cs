@@ -1628,6 +1628,8 @@ internal static class GlShaders
         // 0072, amended. A half's weight in the gate, faded in and out by the port;
         // PrimFs dithers it away. 1 for everything the gate does not weigh.
         flat out float vFade;
+        // Optional per-half main-view material glow, carried through real geometry.
+        flat out vec3 vMapGlow;
         // 0088. A record-lit map corner while NeighbourBlend is on: x bit 31 set, 30
         // the fog on, 29 and 28 the fog and the light blended, bits 14-19 the half's
         // record, 0-13 its half flag; y its RGBC. Its world X and Z, and its own
@@ -1789,7 +1791,7 @@ internal static class GlShaders
             int curve = int(cue.z + 0.5);
             if (uFogOn == 0 || curve == 0) return 1.0;
             if (curve == 5) return clamp(1.0 - linearDepthCue(z, cue.xy) / 4096.0, 0.0, 1.0);
-            float q = min(uCueH * 65536.0 / max(z, 1.0), 131071.0);
+            float q = min(uCueH * 65536.0 / max(scaledFogDepth(z), 1.0), 131071.0);
             float ir0 = clamp((cue.x * q + cue.y) / 4096.0, 0.0, 4096.0);
             float w = curve == 1 ? max(ir0 - 800.0, 0.0) * 2.0
                     : (ir0 < 2800.0 ? ir0 : 3.0 * ir0 - 5600.0);
@@ -1802,6 +1804,7 @@ internal static class GlShaders
         void main() {
             vec3 w = inWorld, color = inColorF, cue = inCue;
             uint flags = inFlags, rgbc = inRgbc;
+            vMapGlow = vec3(0.0);
             ivec3 litDots = ivec3(0);
             vNb = uvec2(0u);
             vNbXZ = vec2(0.0);
@@ -1834,8 +1837,10 @@ internal static class GlShaders
             uint hid = (flags >> 13) & 0x3FFFu;
             vFade = 1.0;
             if (uHalfGate != 0) {
-                uint weight = hid == 0u ? 255u
-                    : texelFetch(uHalves, ivec2(int((hid - 1u) % 160u), int((hid - 1u) / 160u)), 0).r;
+                uvec4 halfData = hid == 0u ? uvec4(255u, 0u, 0u, 0u)
+                    : texelFetch(uHalves, ivec2(int((hid - 1u) % 160u), int((hid - 1u) / 160u)), 0);
+                uint weight = halfData.r;
+                if (uHalfGate == 1 && uModel == 0) vMapGlow = vec3(halfData.gba) / 255.0;
                 bool drawn = weight != 0u;
                 if (uHalfGate == 1) vFade = float(weight) / 255.0;
                 if (drawn != (uHalfGate == 1)) {
@@ -1874,7 +1879,7 @@ internal static class GlShaders
             // shade8 puts it through the curve at every pixel.
             int curve = int(cue.z + 0.5);
             if (uFogOn != 0 && curve != 0 && uWorldPerPixel != 0) {
-                float q = min(uCueH * 65536.0 / max(z, 1.0), 131071.0);
+                float q = min(uCueH * 65536.0 / max(scaledFogDepth(z), 1.0), 131071.0);
                 vLit = color;
                 vFog = curve == 5 ? linearDepthCue(z, cue.xy) : (cue.x * q + cue.y) / 4096.0;
                 vCue = cue.xy;
@@ -1962,6 +1967,7 @@ internal static class GlShaders
         flat out uint vMat;
         flat out float vFade;
         // 0088. The world program's; no packet is blended.
+        flat out vec3 vMapGlow;
         flat out uvec2 vNb;
         out vec2 vNbXZ;
         noperspective out vec3 vNbDots;
@@ -1993,6 +1999,7 @@ internal static class GlShaders
             int inTexpage = int(inTexpageF + 0.5);
 
             vColor = vec4(inColorF, 0.0) / 255.0;
+            vMapGlow = vec3(0.0);
             vLit = inLit;
             vFog = inFog;
             vCue = vec2(0.0);
@@ -2046,6 +2053,7 @@ internal static class GlShaders
         flat in uvec2 vTex;
         flat in uint vMat;
         flat in float vFade;
+        flat in vec3 vMapGlow;
         // 0088. NeighbourBlend's corner word, world X and Z, and own light dots (WorldVs).
         flat in uvec2 vNb;
         in vec2 vNbXZ;
@@ -2434,6 +2442,8 @@ internal static class GlShaders
         float gCueScale = 1.0;
         float gCueZ = 0.0;
 
+        //@linearDepthCue
+
         // The raw depth cue at the depth a level camera would see this fragment at.
         // MAC0 / 4096 is DQA * H/SZ / 4096 + DQB / 4096, so the part past DQB scales
         // as SZ does. A curve-4 corner holds a weight (EvenFog's blend): taken back
@@ -2441,7 +2451,7 @@ internal static class GlShaders
         float levelCue(float raw, uint curve) {
             if (curve == 4u) {
                 float wv = clamp(raw, 0.0, 4096.0);
-                float q = min(uClipH * 65536.0 / max(gCueZ, 1.0), 131071.0);
+                float q = min(uClipH * 65536.0 / max(scaledFogDepth(gCueZ), 1.0), 131071.0);
                 raw = wv <= 0.0 ? min(uClipDq.x * q / 4096.0 + uClipDq.y, 0.0)
                     : wv < 2800.0 ? wv : (wv + 5600.0) / 3.0;
             }
@@ -2449,7 +2459,6 @@ internal static class GlShaders
         }
 
         // The depth cue's weight, 0..4096, from the raw MAC0 through the curve.
-        //@linearDepthCue
         //@neighbourBlend
         //@distanceFade
 
@@ -2490,7 +2499,7 @@ internal static class GlShaders
             if (((vLight >> 24) & 7u) == 5u) return linearDepthCue(fogDepth() * 65536.0, vCue);
             if (uCueFromZ <= 0.0 || vDepth <= 0.0) return vFog;
             gFogAtDepth = uRadialFog != 0;
-            float q = min(uCueFromZ / max(fogDepth(), 1.0 / 65536.0), 131071.0);
+            float q = min(uCueFromZ * 65536.0 / max(scaledFogDepth(fogDepth() * 65536.0), 1.0), 131071.0);
             return (vCue.x * q + vCue.y) / 4096.0;
         }
 
@@ -2515,7 +2524,7 @@ internal static class GlShaders
 
         // The knee's keep at the frame's DQA, for a colour with no record.
         float frameKeep(float z) {
-            float q = min(uClipH * 65536.0 / max(z, 1.0), 131071.0);
+            float q = min(uClipH * 65536.0 / max(scaledFogDepth(z), 1.0), 131071.0);
             float ir0 = clamp(uClipDq.x * q / 4096.0 + uClipDq.y, 0.0, 4096.0);
             return clamp(1.0 - (ir0 < 2800.0 ? ir0 : 3.0 * ir0 - 5600.0) / 4096.0, 0.0, 1.0);
         }
@@ -2554,7 +2563,12 @@ internal static class GlShaders
         }
 
         uniform float uTrueColor;
+        // A retained model's optional final RGB mix. Other programs leave it0;
+        // the world program clears it when leaving its instance draw range.
+        uniform vec4 uModelColourMix;
         vec3 quant5(ivec3 c8) {
+            if (uModelColourMix.a > 0.0)
+                c8 = ivec3(floor(mix(vec3(clamp(c8, 0, 255)), uModelColourMix.rgb * 255.0, uModelColourMix.a) + 0.5));
             // True color: keep all eight bits, so the smooth shaded gradient is not
             // banded down to 32 levels. Dither is pointless here and skipped — the
             // RGBA8 target has nothing to dither into.
@@ -2689,6 +2703,9 @@ internal static class GlShaders
                 gSpec8 = clamp(rgbc * hi * keep, 0.0, 255.0);
                 gMetal = m0.a;
             }
+            // Port/mod map glow still obeys the material's atmospheric fog,
+            // texture holes, visibility, depth test and distance fade.
+            gGlow8 += ivec3(floor(vMapGlow * 255.0 * clamp(1.0 - cueWeight() / 4096.0, 0.0, 1.0)));
             ivec3 c8in = shade8(extra);
             if (uCheckMask != 0 && texelFetch(uDest, ivec2(gl_FragCoord.xy), 0).a >= 0.5) discard;
 

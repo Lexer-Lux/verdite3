@@ -8,6 +8,11 @@ using Recompiled;
 Verdite.Core.Game.Configure(tag: "KF3");
 Verdite.Core.Kept.BoolsAsInts = true;
 
+// Explicit simulation-only diagnostics. Configure before any host is initialized.
+// These flags do not redirect data: callers must provide a private working directory.
+RecompOne.Runtime.Runtime.Headless = Verdite.Core.Game.Env("HEADLESS")?.Trim() is "1" or "on" or "true";
+RecompOne.Runtime.Gpu.NoRaster = RecompOne.Runtime.Runtime.Headless && Verdite.Core.Game.Env("HEADLESS_RASTER")?.Trim() is not "1";
+
 // What a crash, a hook's fault or a hang leaves in crashes/: the runtime's report
 // with this port's version, place and switches in it. KF3_HANG=seconds without a
 // frame before a hang report (15; 0 turns it off); KF3_FAULT=hook|crash|hang[:s]
@@ -42,6 +47,7 @@ if (channels.Count > 0)
 // docs/INPUT.md.
 Kf3.KeyLayout.Configure();
 Kf3.KeyLayout.Install();
+Kf3.SeparateRun.Install();
 
 // The top menu bar starts hidden whatever the last session saved; F1 shows it.
 // Once, at the first ready: a hard reset raises the event again.
@@ -377,6 +383,8 @@ Kf3.Setup.Install();
 // The port settings both screens draw from, and the one writer of interface.ini's
 // kf3.* keys (docs/SETTINGS.md). Last, so its boot check follows every start-up.
 Kf3.PortSettings.Install();
+Kf3.NativeNotifications.Install();
+Kf3.NativeSaves.Install();
 
 // Compile the recompiled code ahead of the game running it. QuickJit is off (a
 // tier-up loses a MonoMod detour), so every function is compiled by the full JIT

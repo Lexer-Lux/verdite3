@@ -1,0 +1,107 @@
+using System.Reflection;
+using RecompOne.Runtime;
+using RecompOne.Runtime.Config;
+using RecompOne.Runtime.Context;
+using RecompOne.Runtime.Events;
+using RecompOne.Runtime.Memory;
+using RecompOne.Runtime.Modding;
+using RecompOne.Runtime.Host;
+using Silk.NET.Input;
+
+namespace Kf3;
+
+/// <summary>KF3's held-use run check and interaction check are separate routines.
+/// Scope the run routine's use mask to the otherwise unused L3 bit; leave the
+/// interaction routine and the player's guest control table unchanged.</summary>
+public static class SeparateRun
+{
+    public const string Key = "kf3.controls.separaterun";
+    public const ushort RunMask = 0x0200;
+    const uint UseMask = 0x80081876;
+    const uint RunRoutine = 0x8002FE1C;
+    const uint GameplayReadReturn = 0x80031128;
+    const uint MenuReadReturn = 0x800279B4;
+    const uint CancelMask = 0x8009C250;
+    public static bool Enabled { get; set; }
+    static bool _queued;
+    static readonly ModInfo Self = new() { Id = "kf3.separaterun", Name = "Separate run input", Version = "1.0" };
+    static readonly ushort[] Logical = [0x1000, 0x4000, 0x8000, 0x2000,
+        0x0080, 0x0020, 0x0010, 0x0040, 0x0004, 0x0001, 0x0008, 0x0002, 0x0100, 0x0800];
+
+    public static void Install()
+    {
+        Event.AddListener<RuntimeReadyEvent>(_ => Enabled = Environment.GetEnvironmentVariable("KF3_SEPARATERUN") is { } forced
+            ? forced is "1" or "on" or "true" : RecompOne.Runtime.Runtime.View.GetInt(Key, 0) != 0);
+        Event.AddListener<PadReadEvent>(OnPadRead);
+        HookAttach.OnOverlayLoad("separate run", Attach);
+    }
+
+    static bool Attach()
+    {
+        SymbolRegistry.Build();
+        var target = SymbolRegistry.Resolve("game", null, RunRoutine);
+        if (target is null) return false;
+        if (!_queued)
+            _queued = HookManager.AddReplace(Self, target,
+                typeof(SeparateRun).GetMethod(nameof(Run), BindingFlags.NonPublic | BindingFlags.Static)!);
+        HookManager.Commit();
+        return _queued && HookAttach.Installed(target);
+    }
+
+    static void Run(Action<CpuContext, IMemory> original, CpuContext c, IMemory memory)
+    {
+        if (!Enabled) { original(c, memory); return; }
+        ushort before = memory.ReadU16(UseMask);
+        memory.WriteU16(UseMask, RunMask);
+        try { original(c, memory); }
+        finally { if (memory.ReadU16(UseMask) == RunMask) memory.WriteU16(UseMask, before); }
+    }
+
+    public static void OnPadRead(PadReadEvent e)
+    {
+        if (!Enabled || e.Port != 0) return;
+        ushort pressed = (ushort)~e.Buttons;
+        uint caller = PadReadContext.Caller(e);
+        if (caller == GameplayReadReturn)
+        {
+            // Modern bindings name actions. Follow a loaded save's actual guest
+            // action table instead of assuming its face/direction preset is 3/0.
+            ushort actual = (ushort)(pressed & RunMask);
+            for (int i = 0; i < Logical.Length; i++)
+                if ((pressed & Logical[i]) != 0) actual |= e.Memory.ReadU16(0x80081868u + (uint)i * 2);
+            e.Buttons = (ushort)~actual;
+        }
+        else if (caller == MenuReadReturn)
+        {
+            e.Buttons = (ushort)~MenuButtons(pressed, PadReadContext.GuideMenu(e), ConfigManager.Game,
+                button => HostWindow.IsPadButtonDown(button),
+                key => Enum.TryParse<Key>(key, out var parsed) && HostWindow.IsKeyDown(parsed),
+                e.Memory.ReadU16(CancelMask));
+        }
+    }
+
+    /// <summary>Keep native Guide's Triangle in its lists, without treating a
+    /// keyboard inventory key or a customized pad binding as physical Triangle.</summary>
+    public static ushort MenuButtons(ushort pressed, bool guide, GameConfig config,
+        Func<int, bool> padDown, Func<string, bool> keyDown, ushort cancel)
+    {
+        var pad = config.PadFor(0); // Includes the selected analog binding table.
+        bool held(int[] bindings, int except = -1) => Array.Exists(bindings, b => b != except && padDown(b));
+        bool padGuide = guide && (pressed & 0x20) != 0 && Array.IndexOf(pad.Circle, 3) >= 0 && padDown(3);
+        bool nativePadGuide = guide && (pressed & 0x10) != 0 && Array.IndexOf(pad.Triangle, 3) >= 0 && padDown(3);
+        bool keyGuide = guide && (pressed & 0x10) != 0 && keyDown(config.Keys.Triangle);
+        ushort actions = pressed;
+        if (padGuide && !keyDown(config.Keys.Circle) && !held(pad.Circle, 3)) actions &= 0xFFDF;
+        if ((keyGuide || nativePadGuide) && !held(pad.Triangle, nativePadGuide ? 3 : -1)) actions &= 0xFFEF;
+
+        // Attack/cast shoulders keep their native menu page/model actions.
+        ushort menu = (ushort)(actions & ~(0x0080 | 0x0010));
+        if ((actions & 0x0080) != 0) menu |= 0x0008;
+        if ((actions & 0x0010) != 0) menu |= 0x0004;
+        if (padGuide || nativePadGuide || keyGuide) menu |= 0x0010;
+        // In the viewer, the same Triangle mapping prevents the opening hold
+        // from becoming Cancel. Native Circle/Back and keyboard Tab still close it.
+        if ((pressed & RunMask) != 0) menu |= cancel != 0 ? cancel : (ushort)0x0020;
+        return menu;
+    }
+}
